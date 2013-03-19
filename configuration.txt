@@ -1,0 +1,3 @@
+diskspace=30000
+ficheiro1.pdf,5
+ficheiro2.txt,2
