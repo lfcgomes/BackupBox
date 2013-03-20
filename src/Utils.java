@@ -10,7 +10,7 @@ import java.security.NoSuchAlgorithmException;
 
 public class Utils {
 
-
+        static int flag_sending = 0;
 	/* */
 	public static String geraHexFormat(String f) throws NoSuchAlgorithmException, IOException {
 
