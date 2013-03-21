@@ -12,7 +12,8 @@ import java.util.HashMap;
 import java.util.Scanner;
 
 public class Backup {
-
+    
+    private static String version = "1.0";
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
     private static HashMap<String, HashMap<Integer, byte[]>> map_chunk_files =
             new HashMap<String, HashMap<Integer, byte[]>>();
@@ -22,6 +23,10 @@ public class Backup {
     }
     public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
         return map_chunk_files;
+    }
+    
+    public static String getVersion(){
+        return version;
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
@@ -36,7 +41,7 @@ public class Backup {
         InetAddress address = InetAddress.getByName(ip_address);
         socket.joinGroup(address);
 
-        String version = "1.0";
+        
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
@@ -118,10 +123,14 @@ public class Backup {
                     int replication_degree = 3;//in.nextInt();
 
                     //TODO lançar thread Sender?
-                    Sender sender = new Sender(socket, address, MC, MD, sha);
+                    Utils.flag_sending = 1;
+                    Sender sender = new Sender(address, MC, MD, sha);
                     sender.start();
                     
-                    //while(Utils.flag_sending==0){}
+                    while(Utils.flag_sending==1){System.out.print("");}
+                    
+                    System.out.println("Enviado");
+
                     break;
                 case 2:
                     System.out.println("Enter the name of your file:");
