@@ -28,7 +28,7 @@ public class Backup {
 
         int MC = 7777;
         int MD = 7788;
-        String ip_address = "224.0.2.10";
+        String ip_address = "224.0.2.11";
         MulticastSocket socket = new MulticastSocket(MC);
 
         File dir = new File("files"); //substituir com directorio do ficheiro de configuracao
@@ -40,6 +40,8 @@ public class Backup {
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
+        Receiver receiver = new Receiver(address, MC, MD);
+        receiver.start();
 
         int op = 0;
         while (op != 5) {
