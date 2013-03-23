@@ -3,11 +3,10 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.net.UnknownHostException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
 
@@ -17,7 +16,22 @@ public class Backup {
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
     private static HashMap<String, HashMap<Integer, byte[]>> map_chunk_files =
             new HashMap<String, HashMap<Integer, byte[]>>();
-
+    
+    private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
+    
+    public static ArrayList getStoredChunks(String fileID){
+        return stored_chunks.get(fileID);
+    }
+    
+    public static boolean existChunk(String fileID, String chunkNO){
+        return stored_chunks.get(fileID).contains(chunkNO);
+    }
+    public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
+            return stored_chunks;
+    }
+    public static void initiateStoredChunk(String fileID){
+        stored_chunks.put(fileID, new ArrayList<Integer>());
+    }
     public static HashMap<String, File> getMapShaFiles() {
         return map_sha_files;
     }
@@ -93,7 +107,7 @@ public class Backup {
                     String sha = "";
                     while (true) {
 
-                        if (map_sha_files.size() == 0) {
+                        if (map_sha_files.isEmpty()) {
                             System.out.println("No files in the directory!\n");
                             no_files = true;
                             break;
@@ -130,6 +144,7 @@ public class Backup {
                     while(Utils.flag_sending==1){System.out.print("");}
                     
                     System.out.println("Enviado");
+                    
 
                     break;
                 case 2:
