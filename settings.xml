@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+To change this template, choose Tools | Templates
+and open the template in the editor.
+-->
+
+
+<Settings>
+        <ipAddress>224.0.2.11</ipAddress>
+        <MC>7777</MC>
+        <MDBackup>7788</MDBackup>
+        <MDRestore>7799</MDRestore>
+        <Version>1.0</Version>
+</Settings>
