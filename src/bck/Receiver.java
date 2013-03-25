@@ -70,7 +70,7 @@ public class Receiver extends Thread {
                         Backup.initiateStoredChunk(fileID);
                     }
                     //verifica se já armazenou esse chunk
-                    if (!Backup.existChunk(fileID,Integer.parseInt(chunkNO))) {
+                    if (!Backup.existChunk(fileID,chunkNO)) {
                         //Vamos criar o ficheiro txt para armazenar os chunks desse ficheiro
                         FileWriter fileWritter = null;
                         try {

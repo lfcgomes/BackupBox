@@ -30,7 +30,7 @@ public class Backup {
         return missing_chunks;
     }
     
-    public static boolean existChunk(String fileID, Integer chunkNO){
+    public static boolean existChunk(String fileID, String chunkNO){
         return stored_chunks.get(fileID).contains(chunkNO);
     }
     public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
