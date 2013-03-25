@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -14,12 +15,16 @@ public class Receiver extends Thread {
 
     InetAddress address = null;
     int MD;
+    int MC;
     MulticastSocket socket = null;
-
-    public Receiver(InetAddress ad, int m_c, int m_d) throws IOException {
+    MulticastSocket socket_control = null;
+    
+    public Receiver(MulticastSocket socket_mc, InetAddress ad, int m_c, int m_d) throws IOException {
         address = ad;
         MD = m_d;
-
+        MC = m_c;
+        socket_control = socket_mc;
+        
         socket = new MulticastSocket(MD);
         socket.joinGroup(ad);
     }
@@ -83,14 +88,22 @@ public class Receiver extends Thread {
 
                             //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
                             Backup.getStoredChunks(fileID).add(chunkNO);
-                            //System.out.println("tamanho " + Backup.getStoredChunks(fileID).size());
-
-                            //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
-                            for (int i = 0; i < data_parsed.length; i++) {
-                                System.out.println(i + " - " + data_parsed[i]);
+                            
+                            //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
+                            socket_control.joinGroup(address);
+                            String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
+                            DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
+                            
+                            Random randomGenerator = new Random();
+                            int randomDelay = randomGenerator.nextInt(400);
+                            
+                            try {
+                                Thread.sleep(randomDelay);
+                                socket_control.send(chunk_stored);
+                            } catch (InterruptedException ex) {
+                                Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
                             }
-
-
+                            
                         } catch (IOException ex) {
                             Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
                         } finally {

@@ -59,7 +59,7 @@ public class Backup {
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
-        Receiver receiver = new Receiver(address, MC, MD);
+        Receiver receiver = new Receiver(socket,address, MC, MD);
         receiver.start();
 
         int op = 0;
