@@ -1,3 +1,5 @@
+package bck;
+
 //class main do Backup-Box, com a funcionalidade principal de controlar enviar/receber
 
 import java.io.File;
@@ -53,10 +55,22 @@ public class Backup {
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
+        GUI g = new GUI();
+        g.show(); 
+    }
 
+    public static void backup(int mc, int md, String ip, String vrs) throws IOException, NoSuchAlgorithmException{
+
+        /*
         int MC = 7777;
         int MD = 7788;
         String ip_address = "224.0.2.11";
+         */
+        
+        int MC = mc;
+        int MD = md;
+        String ip_address = ip;
+        Backup.version = vrs;
         MulticastSocket socket = new MulticastSocket(MC);
 
         File dir = new File("files"); //substituir com directorio do ficheiro de configuracao
@@ -182,7 +196,6 @@ public class Backup {
             }
         }
     }
-
     public static void menu() {
 
         System.out.println("Welcome to the BackupBox. Choose an option:\n");
