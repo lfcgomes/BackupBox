@@ -18,6 +18,7 @@ public class Backup {
             new HashMap<String, HashMap<Integer, byte[]>>();
     
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
+    private static HashMap<String,ArrayList<Integer>> stored_messages_received = new HashMap<String,ArrayList<Integer>>();
     
     public static ArrayList getStoredChunks(String fileID){
         return stored_chunks.get(fileID);
@@ -59,7 +60,9 @@ public class Backup {
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
+        Message message = new Message(socket, address, MC);
         Receiver receiver = new Receiver(socket,address, MC, MD);
+        message.start();
         receiver.start();
 
         int op = 0;
