@@ -39,7 +39,7 @@ public class Sender extends Thread {
             String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n + " 2 " + "\n\n " + file_to_send_chunks.get(n);
             n++;
             DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MD);
-            
+
             try {
                 Thread.sleep(10);
                 socket.send(chunk);

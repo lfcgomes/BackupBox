@@ -18,10 +18,14 @@ public class Backup {
             new HashMap<String, HashMap<Integer, byte[]>>();
     
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
-    private static HashMap<String,ArrayList<Integer>> stored_messages_received = new HashMap<String,ArrayList<Integer>>();
+    private static HashMap<String,HashMap<String, ArrayList<Integer>>> stored_messages_received = new HashMap<String,HashMap<String, ArrayList<Integer>>>();
     
     public static ArrayList getStoredChunks(String fileID){
         return stored_chunks.get(fileID);
+    }
+    
+    public static HashMap getStoredMessagesReceived(String fileID){
+        return stored_messages_received.get(fileID);
     }
     
     public static boolean existChunk(String fileID, String chunkNO){
@@ -38,6 +42,10 @@ public class Backup {
     }
     public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
         return map_chunk_files;
+    }
+    
+    public static HashMap getStoredMessagesReceived(){
+        return stored_messages_received;
     }
     
     public static String getVersion(){
@@ -145,9 +153,18 @@ public class Backup {
                     sender.start();
                     
                     while(Utils.flag_sending==1){System.out.print("");}
+                    /*
+                    HashMap<String, ArrayList<Integer>> teste = stored_messages_received.get(sha);
                     
-                    System.out.println("Enviado");
+                    int size = teste.size();
                     
+                    System.out.println("SIZE: "+size);
+                    
+                    ArrayList<Integer> chunks_stored = teste.get(version);
+                    
+                    for(int x=0;x<chunks_stored.size();x++)
+                        System.out.println("Stored: "+chunks_stored.get(x));
+                    */
 
                     break;
                 case 2:

@@ -35,8 +35,7 @@ public class Receiver extends Thread {
 
             byte[] receive_buffer = new byte[2048];
             String local = "";
-            String ip = "";
-            
+                  
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
             try {
                 //socket.setSoTimeout(1000);
@@ -49,7 +48,7 @@ public class Receiver extends Thread {
             //System.out.println("IP LOCAL "+local);
             //System.out.println("IP PACKET "+receive_packet.getAddress().getHostName().toString());
 
-            if (!ip.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
+            if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
                 System.out.print(".");
                 String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                 String[] data_parsed = data.split(" ");
@@ -88,9 +87,9 @@ public class Receiver extends Thread {
 
                             //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
                             Backup.getStoredChunks(fileID).add(chunkNO);
-                            
+                            System.out.println("Guardei: "+chunkNO);
                             //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
-                            socket_control.joinGroup(address);
+        
                             String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
                             DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
                             
