@@ -20,14 +20,14 @@ public class Backup {
             new HashMap<String, HashMap<Integer, byte[]>>();
     
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
-    private static HashMap<String,HashMap<String, ArrayList<Integer>>> stored_messages_received = new HashMap<String,HashMap<String, ArrayList<Integer>>>();
+    private static HashMap<String,HashMap<Integer, Integer>> missing_chunks = new HashMap<String,HashMap<Integer,Integer>>();
     
     public static ArrayList getStoredChunks(String fileID){
         return stored_chunks.get(fileID);
     }
     
-    public static HashMap getStoredMessagesReceived(String fileID){
-        return stored_messages_received.get(fileID);
+    public static HashMap getMissingChunks(String fileID){
+        return missing_chunks;
     }
     
     public static boolean existChunk(String fileID, Integer chunkNO){
@@ -44,10 +44,6 @@ public class Backup {
     }
     public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
         return map_chunk_files;
-    }
-    
-    public static HashMap getStoredMessagesReceived(){
-        return stored_messages_received;
     }
     
     public static String getVersion(){

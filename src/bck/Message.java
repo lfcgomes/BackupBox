@@ -47,31 +47,20 @@ public class Message extends Thread {
                     int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
                     //int chunkNO = Integer.parseInt(data_parsed[3]);
                     
-                    HashMap<String, ArrayList<Integer>> version_with_chunk = new HashMap<String, ArrayList<Integer>>();
-                    version_with_chunk = Backup.getStoredMessagesReceived(fileID);
+                    ArrayList<Integer> stored_chunks = new ArrayList<Integer>();
+                    //stored_chunks = Backup.getStoredMessagesReceived(fileID);
                     
                     //verificar se já recebemos algum STORE para aquele ficheiro
-                    if(version_with_chunk == null){
-                        ArrayList<Integer> aux_chunks = new ArrayList<Integer>();
-                        aux_chunks.add(chunkNO);
-                        version_with_chunk = new HashMap<String, ArrayList<Integer>>();
-                        version_with_chunk.put(version, aux_chunks);
-                        Backup.getStoredMessagesReceived().put(fileID, version_with_chunk);
+                    if(stored_chunks == null){
+                        stored_chunks.add(chunkNO);
+                       // Backup.getStoredMessagesReceived().put(fileID, stored_chunks);
                     }
                     
                     else{
-
-                        ArrayList<Integer> chunks_existent = new ArrayList<Integer>();
-                        
-                        //caso já haja, vamos verificar se para aquela versão já foi guardado aquele chunk
-                        chunks_existent = version_with_chunk.get(version);
-                        
-                    
                         //se existir aquele chunk, adicionamos
-                        if(!chunks_existent.contains(chunkNO)){
+                        if(!stored_chunks.contains(chunkNO)){
+                            //Backup.getStoredMessagesReceived(fileID).add(chunkNO);
                             System.out.println("Adicionei: "+chunkNO);
-                            chunks_existent.add(chunkNO);
-                            Backup.getStoredMessagesReceived(fileID).put(version, chunks_existent);
                         }
                         //caso contenha, é porque já houve algum store para aquele ficheiro
                         else{

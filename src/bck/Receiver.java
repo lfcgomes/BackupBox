@@ -51,7 +51,7 @@ public class Receiver extends Thread {
             //System.out.println("IP LOCAL "+local);
             //System.out.println("IP PACKET "+receive_packet.getAddress().getHostName().toString());
 
-            if (!local.equals("")) {
+            if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
                 
                 String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                 String[] data_parsed = data.split(" ");
