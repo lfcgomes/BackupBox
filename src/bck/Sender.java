@@ -41,7 +41,7 @@ public class Sender extends Thread {
             System.out.println("tamanho dos chunks em falta "+Backup.getMissingChunks());
             String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n + 
                     " " + replication_degree + "\n\n" + file_to_send_chunks.get(n);
-            n++;
+            
             DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MD);
 
             try {
@@ -51,6 +51,7 @@ public class Sender extends Thread {
             } catch (Exception ex) {
                 Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
             }
+            n++;
         }
         
         System.out.print("Tentanto enviar chunks em falta... ");
