@@ -22,6 +22,10 @@ public class Backup {
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
     private static HashMap<String,HashMap<Integer, Integer>> missing_chunks = new HashMap<String,HashMap<Integer,Integer>>();
     
+    
+    public static void initiateMissingChunks(String fileID){
+        missing_chunks.put(fileID, new HashMap<Integer, Integer>());
+    }
     public static ArrayList getStoredChunks(String fileID){
         return stored_chunks.get(fileID);
     }
@@ -78,7 +82,7 @@ public class Backup {
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
-        //Message message = new Message(socket, address, MC);
+        
         Receiver receiver = new Receiver(socket,address, MC, MD);
         //message.start();
         receiver.start();
@@ -155,12 +159,16 @@ public class Backup {
                     if (no_files) {
                         break;
                     }
-
-                    int replication_degree = 3;//in.nextInt();
+                    
+                    System.out.print("Replication degree: ");
+                    int replication_degree = in.nextInt();
 
                     //TODO lançar thread Sender?
                     Utils.flag_sending = 1;
-                    Sender sender = new Sender(address, MC, MD, sha);
+                    Backup.initiateMissingChunks(sha);
+                    Message message = new Message(socket, address, MC, replication_degree);
+                    message.start();
+                    Sender sender = new Sender(address, MC, MD, sha, replication_degree);
                     sender.start();
                     
                     while(Utils.flag_sending==1){System.out.print("");}

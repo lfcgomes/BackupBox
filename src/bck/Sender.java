@@ -18,14 +18,15 @@ public class Sender extends Thread {
     int MC;
     int MD;
     String sha = "";
-
-    public Sender(InetAddress ad, int m_c, int m_d, String sh) throws IOException {
+    int replication_degree;
+    
+    public Sender(InetAddress ad, int m_c, int m_d, String sh, int rd) throws IOException {
 
         address = ad;
         MC = m_c;
         MD = m_d;
         sha = sh;
-        
+        replication_degree = rd;
         socket = new MulticastSocket(MD);
         socket.joinGroup(address);
     }
@@ -39,13 +40,15 @@ public class Sender extends Thread {
         while (file_to_send_chunks.get(n) != null) {
             //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
             
-            String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n + " 2 " + "\n\n " + file_to_send_chunks.get(n);
+            String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n + 
+                    " " + replication_degree + "\n\n " + file_to_send_chunks.get(n);
             n++;
             DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MD);
 
             try {
                 Thread.sleep(10);
                 socket.send(chunk);
+                Backup.getMissingChunks(sha).put(n, replication_degree);
             } catch (Exception ex) {
                 Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
             }

@@ -14,11 +14,13 @@ public class Message extends Thread {
     MulticastSocket socket = null;
     InetAddress address = null;
     int port;
+    int replication_degree;
 
-    public Message(MulticastSocket s, InetAddress ad, int p) {
+    public Message(MulticastSocket s, InetAddress ad, int p, int rd) {
         socket = s;
         address = ad;
         port = p;
+        replication_degree = rd;
     }
 
     public void run() {
@@ -45,27 +47,21 @@ public class Message extends Thread {
                     String version = data_parsed[1];
                     String fileID = data_parsed[2];
                     int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
-                    //int chunkNO = Integer.parseInt(data_parsed[3]);
                     
-                    ArrayList<Integer> stored_chunks = new ArrayList<Integer>();
-                    //stored_chunks = Backup.getStoredMessagesReceived(fileID);
+                    HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
+                    missing = Backup.getMissingChunks(fileID);
                     
-                    //verificar se já recebemos algum STORE para aquele ficheiro
-                    if(stored_chunks == null){
-                        stored_chunks.add(chunkNO);
-                       // Backup.getStoredMessagesReceived().put(fileID, stored_chunks);
+                    //não vai acontecer
+                    if(missing.get(chunkNO) == null){
+                        missing.put(chunkNO,replication_degree);
                     }
-                    
-                    else{
-                        //se existir aquele chunk, adicionamos
-                        if(!stored_chunks.contains(chunkNO)){
-                            //Backup.getStoredMessagesReceived(fileID).add(chunkNO);
-                            System.out.println("Adicionei: "+chunkNO);
-                        }
-                        //caso contenha, é porque já houve algum store para aquele ficheiro
-                        else{
-                            System.out.println("Já existia um store");
-                        }
+                    else{//vai diminuir o replication degree obrigatorio para o chunk
+                        int old_rep = missing.get(chunkNO);
+                        
+                        if((old_rep-1) ==0)
+                            missing.remove(chunkNO);
+                        else
+                            missing.put(chunkNO,old_rep-1);
                     }
                 }
             }

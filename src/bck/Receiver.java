@@ -59,9 +59,16 @@ public class Receiver extends Thread {
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
                 String chunkNO = data_parsed[3];
-                String degree = data_parsed[4];
-                String info = data_parsed[6];
-
+                String unparsed = data_parsed[4];
+                String degree = unparsed.substring(0, unparsed.indexOf("\n"));
+                String info = unparsed.substring(unparsed.lastIndexOf("\n")+1);
+                        
+                System.out.println("0 -"+data_parsed[0]);
+                System.out.println("1 -"+data_parsed[1]);
+                System.out.println("2 -"+data_parsed[2]);
+                System.out.println("3 -"+data_parsed[3]);
+                System.out.println("4 -"+degree);
+                System.out.println("5 -"+info);
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
 
@@ -93,18 +100,18 @@ public class Receiver extends Thread {
                             //System.out.println("Guardei: "+chunkNO);
                             //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
         
-                           /* String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
+                            String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
                             DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
                             
                             Random randomGenerator = new Random();
                             int randomDelay = randomGenerator.nextInt(400);
                             
                             try {
-                                //Thread.sleep(10);
+                                Thread.sleep(randomDelay);
                                 socket_control.send(chunk_stored);
                             } catch (Exception ex) {
                                 Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
-                            }*/
+                            }
                             
                         } catch (IOException ex) {
                             Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
