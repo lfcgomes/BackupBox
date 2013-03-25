@@ -34,9 +34,11 @@ public class Message extends Thread {
             } catch (IOException ex) {}
             
             String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
+            String[] data_parsed = data.split(" ");
             
-            if (!receive_packet.getAddress().toString().equals(ip))
-                System.out.println("Receiving: "+ data);
+            if (!ip.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
+                System.out.println("Received "+data_parsed[0]);
+            }
         }
     }
 }
