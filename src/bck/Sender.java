@@ -35,10 +35,8 @@ public class Sender extends Thread {
         System.out.println("Sending: " + Backup.getMapShaFiles().get(this.sha).getName());
         int n = 0;
         HashMap<Integer, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
-        
         while (file_to_send_chunks.get(n) != null) {
             //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
-            System.out.println("tamanho dos chunks em falta "+Backup.getMissingChunks());
             String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n + 
                     " " + replication_degree + "\n\n" + file_to_send_chunks.get(n);
             
@@ -53,9 +51,13 @@ public class Sender extends Thread {
             }
             n++;
         }
-        
+        try {
+            Thread.sleep(10);
+        } catch (InterruptedException ex) {
+            Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+        }
         System.out.print("Tentanto enviar chunks em falta... ");
-        System.out.println(Backup.getMissingChunks(sha).size());
+        System.out.println(Backup.getMissingChunks(sha));
         Utils.flag_sending = 0;
     }
 }
