@@ -30,7 +30,7 @@ public class Backup {
         return stored_messages_received.get(fileID);
     }
     
-    public static boolean existChunk(String fileID, String chunkNO){
+    public static boolean existChunk(String fileID, Integer chunkNO){
         return stored_chunks.get(fileID).contains(chunkNO);
     }
     public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
@@ -82,9 +82,9 @@ public class Backup {
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
-        Message message = new Message(socket, address, MC);
+        //Message message = new Message(socket, address, MC);
         Receiver receiver = new Receiver(socket,address, MC, MD);
-        message.start();
+        //message.start();
         receiver.start();
 
         int op = 0;
@@ -118,6 +118,7 @@ public class Backup {
                     map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
                     map_chunk_files.put(Utils.geraHexFormat(files[i].getPath()), temp_chunk);
                 }
+               
             }
 
 

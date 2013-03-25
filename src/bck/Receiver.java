@@ -51,8 +51,8 @@ public class Receiver extends Thread {
             //System.out.println("IP LOCAL "+local);
             //System.out.println("IP PACKET "+receive_packet.getAddress().getHostName().toString());
 
-            if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
-                System.out.print(".");
+            if (!local.equals("")) {
+                
                 String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                 String[] data_parsed = data.split(" ");
 
@@ -70,7 +70,7 @@ public class Receiver extends Thread {
                         Backup.initiateStoredChunk(fileID);
                     }
                     //verifica se já armazenou esse chunk
-                    if (!Backup.existChunk(fileID, chunkNO)) {
+                    if (!Backup.existChunk(fileID,Integer.parseInt(chunkNO))) {
                         //Vamos criar o ficheiro txt para armazenar os chunks desse ficheiro
                         FileWriter fileWritter = null;
                         try {
@@ -90,21 +90,21 @@ public class Receiver extends Thread {
 
                             //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
                             Backup.getStoredChunks(fileID).add(chunkNO);
-                            System.out.println("Guardei: "+chunkNO);
+                            //System.out.println("Guardei: "+chunkNO);
                             //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
         
-                            String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
+                           /* String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
                             DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
                             
                             Random randomGenerator = new Random();
                             int randomDelay = randomGenerator.nextInt(400);
                             
                             try {
-                                Thread.sleep(randomDelay);
+                                //Thread.sleep(10);
                                 socket_control.send(chunk_stored);
-                            } catch (InterruptedException ex) {
+                            } catch (Exception ex) {
                                 Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
-                            }
+                            }*/
                             
                         } catch (IOException ex) {
                             Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
