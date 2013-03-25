@@ -64,6 +64,8 @@ public class Message extends Thread {
                             missing.put(chunkNO,old_rep-1);
                     }
                     
+                    Backup.getMissingChunks().put(fileID, missing);
+                    
                 }
             }
         }
