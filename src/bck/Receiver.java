@@ -63,6 +63,7 @@ public class Receiver extends Thread {
                 String degree = unparsed.substring(0, unparsed.indexOf("\n"));
                 String info = unparsed.substring(unparsed.lastIndexOf("\n")+1);
                         
+                System.out.println("data "+data);
                 System.out.println("0 -"+data_parsed[0]);
                 System.out.println("1 -"+data_parsed[1]);
                 System.out.println("2 -"+data_parsed[2]);
@@ -86,7 +87,6 @@ public class Receiver extends Thread {
                             //se o ficheiro não existir, cria-o
                             if (!file.exists()) {
                                 file.createNewFile();
-
                             }
 
 
@@ -107,7 +107,7 @@ public class Receiver extends Thread {
                             int randomDelay = randomGenerator.nextInt(400);
                             
                             try {
-                                Thread.sleep(randomDelay);
+                                //Thread.sleep(randomDelay);
                                 socket_control.send(chunk_stored);
                             } catch (Exception ex) {
                                 Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);

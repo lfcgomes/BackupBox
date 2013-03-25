@@ -31,6 +31,9 @@ public class Backup {
     }
     
     public static HashMap getMissingChunks(String fileID){
+        return missing_chunks.get(fileID);
+    }
+    public static HashMap getMissingChunks(){
         return missing_chunks;
     }
     

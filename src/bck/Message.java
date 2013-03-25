@@ -43,7 +43,7 @@ public class Message extends Thread {
                 
                 //Temos de saber quantas mensagens STORED já recebemos, para saber se ainda temos de guardar
                 if(data_parsed[0].equalsIgnoreCase("STORED")){
-                    
+                    System.out.println("recebi um stored");
                     String version = data_parsed[1];
                     String fileID = data_parsed[2];
                     int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
@@ -63,6 +63,7 @@ public class Message extends Thread {
                         else
                             missing.put(chunkNO,old_rep-1);
                     }
+                    
                 }
             }
         }
