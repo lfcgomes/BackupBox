@@ -1,12 +1,13 @@
 package bck;
 
-
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 //classe para ler as mensagens enviadas
 public class Message extends Thread {
@@ -15,13 +16,15 @@ public class Message extends Thread {
     InetAddress address = null;
     int MC;
     int MDR;
-    
+    MulticastSocket socket_restore = null;
 
-    public Message(MulticastSocket s, InetAddress ad, int p, int mdr) {
+    public Message(MulticastSocket s, InetAddress ad, int p, int mdr) throws IOException {
         socket = s;
         address = ad;
         MC = p;
         MDR = mdr;
+        socket_restore = new MulticastSocket(MDR);
+        socket_restore.joinGroup(ad);
     }
 
     public void run() {
@@ -88,29 +91,43 @@ public class Message extends Thread {
                     }
                 } else {
                     //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
-                    if(data_parsed[0].equalsIgnoreCase("GETCHUNK")){
-                        
+                    if (data_parsed[0].equalsIgnoreCase("GETCHUNK")) {
+
                         String version = data_parsed[1];
-                        
+
                         if (Backup.getVersion().equalsIgnoreCase(version)) {
+
                             //Vamos enviar o chunk pedido
                             //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
-                            
+
                             String fileID = data_parsed[2];
                             String unparsed = data_parsed[3];
                             String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
-                            
-                            // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
-                            if(Backup.getStoredChunks(fileID).contains(Integer.parseInt(chunkNO))){
-                                System.out.println("");
-                            }
 
+                            // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
+                            if (Backup.getStoredChunks(fileID).contains(Integer.parseInt(chunkNO))) {
+                                System.out.println("Tenho o chunk pedido");
+
+                                String info = Utils.readFromFile(fileID, chunkNO);
+                                System.out.println("info " + info);
+                                
+                                //Se tenho o chunk, tenho que ir ao ficheiro buscar
+                                String msg = "CHUNK " + Backup.getVersion() + " " + chunkNO + "\n\n" + info;
+
+                                DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MDR);
+
+                                try {
+                                    socket_restore.send(chunk);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+
+                            }
                         }
                     }
-                    
                 }
             }
-    }
-        
+        }
+
     }
 }
