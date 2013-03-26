@@ -14,13 +14,11 @@ public class Message extends Thread {
     MulticastSocket socket = null;
     InetAddress address = null;
     int port;
-    int replication_degree;
 
-    public Message(MulticastSocket s, InetAddress ad, int p, int rd) {
+    public Message(MulticastSocket s, InetAddress ad, int p) {
         socket = s;
         address = ad;
         port = p;
-        replication_degree = rd;
     }
 
     public void run() {
@@ -62,10 +60,10 @@ public class Message extends Thread {
 
                         //não vai acontecer
                         if (missing.get(chunkNO) == null) {
-                            if ((replication_degree - 1) == 0) {
+                            if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
                                 missing.remove(chunkNO);
                             } else {
-                                missing.put(chunkNO, replication_degree - 1);
+                                missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
                             }
                             System.out.println("entrou aqui");
                         } else {//vai diminuir o replication degree obrigatorio para o chunk
@@ -80,6 +78,10 @@ public class Message extends Thread {
 
                         Backup.getMissingChunks().put(fileID, missing);
                     }
+                }
+                else{
+                    //GETCHUNK
+                    
                 }
             }
     }
