@@ -1,5 +1,7 @@
 *.class
 
+/build
+/nbproject/private
 # Package Files #
 *.jar
 *.war
