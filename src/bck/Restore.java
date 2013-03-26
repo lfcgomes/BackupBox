@@ -14,21 +14,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /* thread que vai receber chunks para backup enviadas pelo sender*/
-public class Receiver extends Thread {
+public class Restore extends Thread {
 
     InetAddress address = null;
-    int MDB;
+    int MDR;
     int MC;
     MulticastSocket socket = null;
     MulticastSocket socket_control = null;
     
-    public Receiver(MulticastSocket socket_mc, InetAddress ad, int m_c, int m_d_b) throws IOException {
+    public Restore(MulticastSocket socket_mc, InetAddress ad, int m_c, int m_d_r) throws IOException {
         address = ad;
-        MDB = m_d_b;
+        MDR = m_d_r;
         MC = m_c;
         socket_control = socket_mc;
-        
-        socket = new MulticastSocket(MDB);
+   
+        socket = new MulticastSocket(MDR);
         socket.joinGroup(ad);
     }
 
@@ -110,16 +110,16 @@ public class Receiver extends Thread {
                                 //Thread.sleep(randomDelay);
                                 socket_control.send(chunk_stored);
                             } catch (Exception ex) {
-                                Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }
                             
                         } catch (IOException ex) {
-                            Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                            Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                         } finally {
                             try {
                                 fileWritter.close();
                             } catch (IOException ex) {
-                                Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }

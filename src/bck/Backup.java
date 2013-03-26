@@ -97,7 +97,7 @@ public class Backup {
         g.show(); 
     }
 
-    public static void backup(int mc, int md, String ip, String vrs) throws IOException, NoSuchAlgorithmException{
+    public static void backup(int mc, int mdb, int mdr, String ip, String vrs) throws IOException, NoSuchAlgorithmException{
 
         /*
         int MC = 7777;
@@ -106,7 +106,8 @@ public class Backup {
          */
         
         int MC = mc;
-        int MD = md;
+        int MDB = mdb;
+        int MDR = mdr;
         String ip_address = ip;
         Backup.version = vrs;
         MulticastSocket socket = new MulticastSocket(MC);
@@ -121,8 +122,8 @@ public class Backup {
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?
         
-        Receiver receiver = new Receiver(socket,address, MC, MD);
-        Message message = new Message(socket, address, MC);
+        Receiver receiver = new Receiver(socket,address, MC, MDB);
+        Message message = new Message(socket, address, MC, MDR);
         message.start();
         receiver.start();
 
@@ -220,7 +221,7 @@ public class Backup {
                     //Adiciona o ficheiro que está a enviar, aos array de ficheiros enviados
                     sended_files.add(sha);
                     
-                    Sender sender = new Sender(address, MC, MD, sha, replication_degree);
+                    Sender sender = new Sender(address, MC, MDB, sha, replication_degree);
                     sender.start();
                     
                     while(Utils.flag_sending==1){System.out.print("");}
