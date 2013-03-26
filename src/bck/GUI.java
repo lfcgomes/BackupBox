@@ -183,11 +183,12 @@ public class GUI extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             int mc = Integer.parseInt(this.pc_textBox.getText());
-            int md = Integer.parseInt(this.pdr_textBox.getText());
+            int mdb = Integer.parseInt(this.pdb_textBox.getText());
+            int mdr = Integer.parseInt(this.pdr_textBox.getText());
             String ip = this.ip_textBox.getText();
             String vrs = this.vers_textBox.getText();
             this.dispose();
-            Backup.backup(mc, md, ip, vrs);
+            Backup.backup(mc, mdb, mdr, ip, vrs);
             
         } catch (IOException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
