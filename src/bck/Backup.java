@@ -16,6 +16,8 @@ public class Backup {
     
     private static String version = "1.0";
     
+    private static HashMap<String, Integer> file_replication_degree = new HashMap<String, Integer>();
+    
     //Guarda o fileID e o ficheiro
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
     
@@ -40,6 +42,10 @@ public class Backup {
     
     //Guarda o fileID dos ficheiros que foram enviados
     private static ArrayList<String> sended_files = new ArrayList<String>();
+    
+    public static int getFileReplicationDegree(String sha){
+        return file_replication_degree.get(sha);
+    }
     
     public static ArrayList<String> getReceivedSendedFiles(){
         return received_sended_files;
@@ -116,7 +122,8 @@ public class Backup {
         //TODO lançar thread RECEIVER para estar à espera de chunks?
         
         Receiver receiver = new Receiver(socket,address, MC, MD);
-        //message.start();
+        Message message = new Message(socket, address, MC);
+        message.start();
         receiver.start();
 
         int op = 0;
@@ -203,6 +210,8 @@ public class Backup {
                     
                     System.out.print("Replication degree: ");
                     int replication_degree = in.nextInt();
+                    
+                    file_replication_degree.put(sha, replication_degree);
 
                     //TODO lançar thread Sender?
                     Utils.flag_sending = 1;
@@ -211,8 +220,6 @@ public class Backup {
                     //Adiciona o ficheiro que está a enviar, aos array de ficheiros enviados
                     sended_files.add(sha);
                     
-                    Message message = new Message(socket, address, MC, replication_degree);
-                    message.start();
                     Sender sender = new Sender(address, MC, MD, sha, replication_degree);
                     sender.start();
                     
