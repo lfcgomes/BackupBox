@@ -36,7 +36,7 @@ public class Backup {
     /* HashMaps com info dos ficheiros que eu RECEBO */
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
-    private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
+    private static HashMap<String,ArrayList<String>> stored_chunks = new HashMap<String,ArrayList<String>>();
 
     
     public static int getFileReplicationDegree(String sha){
@@ -54,7 +54,7 @@ public class Backup {
     public static void initiateMissingChunks(String fileID){
         missing_chunks.put(fileID, new HashMap<Integer, Integer>());
     }
-    public static ArrayList<Integer> getStoredChunks(String fileID){
+    public static ArrayList<String> getStoredChunks(String fileID){
         return stored_chunks.get(fileID);
     }
     
@@ -67,11 +67,11 @@ public class Backup {
     public static boolean existChunk(String fileID, String chunkNO){
         return stored_chunks.get(fileID).contains(chunkNO);
     }
-    public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
+    public static HashMap<String,ArrayList<String>> getStoredChunksMap(){
             return stored_chunks;
     }
     public static void initiateStoredChunk(String fileID){
-        stored_chunks.put(fileID, new ArrayList<Integer>());
+        stored_chunks.put(fileID, new ArrayList<String>());
     }
     public static HashMap<String, File> getMapShaFiles() {
         return map_sha_files;
