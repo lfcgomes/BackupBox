@@ -36,8 +36,13 @@ public class Backup {
     /* HashMaps com info dos ficheiros que eu RECEBO */
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
+<<<<<<< HEAD
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
     private static HashMap<String,ArrayList<Integer>> restored_chunks = new HashMap<String,ArrayList<Integer>>();
+=======
+    private static HashMap<String,ArrayList<String>> stored_chunks = new HashMap<String,ArrayList<String>>();
+
+>>>>>>> c9e0b679e62e7b97eba80e2346c6ed4b707f2e2d
     
     public static int getFileReplicationDegree(String sha){
         return file_replication_degree.get(sha);}
@@ -49,6 +54,7 @@ public class Backup {
         return sended_files;}
     
     public static void initiateMissingChunks(String fileID){
+<<<<<<< HEAD
         missing_chunks.put(fileID, new HashMap<Integer, Integer>());}
     
     public static ArrayList<Integer> getStoredChunks(String fileID){
@@ -56,6 +62,13 @@ public class Backup {
     
     public static ArrayList<Integer> getRestoredChunks(String fileID){
         return restored_chunks.get(fileID);}
+=======
+        missing_chunks.put(fileID, new HashMap<Integer, Integer>());
+    }
+    public static ArrayList<String> getStoredChunks(String fileID){
+        return stored_chunks.get(fileID);
+    }
+>>>>>>> c9e0b679e62e7b97eba80e2346c6ed4b707f2e2d
     
     public static HashMap getMissingChunks(String fileID){
         return missing_chunks.get(fileID);}
@@ -64,6 +77,7 @@ public class Backup {
         return missing_chunks;}
     
     public static boolean existChunk(String fileID, String chunkNO){
+<<<<<<< HEAD
         return stored_chunks.get(fileID).contains(chunkNO);}
     
     public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
@@ -72,6 +86,16 @@ public class Backup {
     public static void initiateStoredChunk(String fileID){
         stored_chunks.put(fileID, new ArrayList<Integer>());}
     
+=======
+        return stored_chunks.get(fileID).contains(chunkNO);
+    }
+    public static HashMap<String,ArrayList<String>> getStoredChunksMap(){
+            return stored_chunks;
+    }
+    public static void initiateStoredChunk(String fileID){
+        stored_chunks.put(fileID, new ArrayList<String>());
+    }
+>>>>>>> c9e0b679e62e7b97eba80e2346c6ed4b707f2e2d
     public static HashMap<String, File> getMapShaFiles() {
         return map_sha_files;}
     

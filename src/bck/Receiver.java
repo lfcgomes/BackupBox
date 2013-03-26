@@ -96,7 +96,7 @@ public class Receiver extends Thread {
                             bufferWritter.close();
 
                             //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
-                            Backup.getStoredChunks(fileID).add(Integer.parseInt(chunkNO));
+                            Backup.getStoredChunks(fileID).add(chunkNO);
                             //System.out.println("Guardei: "+chunkNO);
                             //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
         
