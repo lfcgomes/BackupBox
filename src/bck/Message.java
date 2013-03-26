@@ -94,25 +94,28 @@ public class Message extends Thread {
                     if (data_parsed[0].equalsIgnoreCase("GETCHUNK")) {
 
                         String version = data_parsed[1];
-
+                        System.out.println("recebi um getchunk");
                         if (Backup.getVersion().equalsIgnoreCase(version)) {
 
                             //Vamos enviar o chunk pedido
-                            //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
-
+                            
+                            
                             String fileID = data_parsed[2];
                             String unparsed = data_parsed[3];
                             String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
-
+                            System.out.println("getchunk que recebi: "+fileID+" "+chunkNO);
+                            System.out.println("vamos ver se tenho o chunk");
                             // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
-                            if (Backup.getStoredChunks(fileID).contains(Integer.parseInt(chunkNO))) {
+                            if (Backup.getStoredChunks(fileID).contains(chunkNO)) {
                                 System.out.println("Tenho o chunk pedido");
 
-                                String info = Utils.readFromFile(fileID, chunkNO);
+                                String info = Utils.readFromFile(fileID+".txt", chunkNO);
                                 System.out.println("info " + info);
                                 
+                                //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
+                                
                                 //Se tenho o chunk, tenho que ir ao ficheiro buscar
-                                String msg = "CHUNK " + Backup.getVersion() + " " + chunkNO + "\n\n" + info;
+                                String msg = "CHUNK " + Backup.getVersion() + " "+fileID+" " + chunkNO + "\n\n" + info;
 
                                 DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MDR);
 

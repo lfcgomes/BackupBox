@@ -65,7 +65,6 @@ public class Utils {
             //Read File Line By Line
             while ((strLine = br.readLine()) != null) {
                 // Print the content on the console
-                System.out.println(strLine);
                 String[] data_parsed = strLine.split(" ");
                 if(data_parsed[1].equalsIgnoreCase(chunkNO))
                     return data_parsed[0];
