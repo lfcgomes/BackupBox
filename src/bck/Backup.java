@@ -17,29 +17,27 @@ public class Backup {
     
     private static String version = "1.0";
     
-    private static HashMap<String, Integer> file_replication_degree = new HashMap<String, Integer>();
+    /* HashMaps com info dos ficheiros que eu ENVIO */
     
     //Guarda o fileID e o ficheiro
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
-    
-    /*
-     * Para cada fileID, guarda o número do chunk, e o respectivo chunk
-     */
+    private static HashMap<String, Integer> file_replication_degree = new HashMap<String, Integer>();
+    /* Para cada fileID, guarda o número do chunk, e o respectivo chunk*/
     private static HashMap<String, HashMap<Integer, byte[]>> map_chunk_files =
             new HashMap<String, HashMap<Integer, byte[]>>();
-    
-    //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
-    private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
-    
     /* Para cada fileID, guarda um HashMap com o número do chunk, e quantas vezes ele ainda precisa de ser
      * enviado para ser guardado na LAN */
     private static HashMap<String,HashMap<Integer, Integer>> missing_chunks = new HashMap<String,HashMap<Integer,Integer>>();
-    
     //Guarda o fileID dos ficheiros ficheiros enviados, que foram armazenados na LAN
-    private static ArrayList<String> received_sended_files = new ArrayList<String>();
-    
-    //Guarda o fileID dos ficheiros que foram enviados
+    private static ArrayList<String> received_sended_files = new ArrayList<String>();    
+    //Guarda o fileID dos ficheiros que tentei enviar para a LAN
     private static ArrayList<String> sended_files = new ArrayList<String>();
+    
+    /* HashMaps com info dos ficheiros que eu RECEBO */
+    //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
+    //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
+    private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
+
     
     public static int getFileReplicationDegree(String sha){
         return file_replication_degree.get(sha);
