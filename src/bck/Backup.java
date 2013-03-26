@@ -15,13 +15,29 @@ import java.util.Scanner;
 public class Backup {
     
     private static String version = "1.0";
+    
+    //Guarda o fileID e o ficheiro
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
+    
+    /*
+     * Para cada fileID, guarda o número do chunk, e o respectivo chunk
+     */
     private static HashMap<String, HashMap<Integer, byte[]>> map_chunk_files =
             new HashMap<String, HashMap<Integer, byte[]>>();
     
+    //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
+    
+    /* Para cada fileID, guarda um HashMap com o número do chunk, e quantas vezes ele ainda precisa de ser
+     * enviado para ser guardado na LAN */
     private static HashMap<String,HashMap<Integer, Integer>> missing_chunks = new HashMap<String,HashMap<Integer,Integer>>();
     
+    //Guarda o nome do ficheiro e o FileID com que foi guardado na LAN
+    private static HashMap<String, String> backuped_files = new HashMap<String, String>();
+    
+    public static HashMap<String, String> getBackupedFiles(){
+        return backuped_files;
+    }
     
     public static void initiateMissingChunks(String fileID){
         missing_chunks.put(fileID, new HashMap<Integer, Integer>());
@@ -36,7 +52,6 @@ public class Backup {
     public static HashMap getMissingChunks(){
         return missing_chunks;
     }
-    
     public static boolean existChunk(String fileID, String chunkNO){
         return stored_chunks.get(fileID).contains(chunkNO);
     }
@@ -190,7 +205,10 @@ public class Backup {
 
                     break;
                 case 2:
-                    System.out.println("Enter the name of your file:");
+                    System.out.println("Enter the name of your file: ");
+                    String file = in.next();
+                    
+                    
                     break;
                 case 3:
                     break;
