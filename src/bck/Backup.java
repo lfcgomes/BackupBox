@@ -110,14 +110,25 @@ public class Backup {
                     File aux = new File(files[i].toString());
                     FileInputStream f = new FileInputStream(aux);
 
-                    byte[] dataBytes = new byte[1024];
+                    byte[] dataBytes = new byte[64000];
                     int c = 0;
+                    int size,lastsize = 0;
 
-                    while ((f.read(dataBytes)) != -1) {	//lê todos os chunks do ficheiro
+                    while ((size = f.read(dataBytes)) != -1) {	//lê todos os chunks do ficheiro
+                        System.out.println("Size: "+size);
                         temp_chunk.put(c, dataBytes);
                         c++;
-                        dataBytes = new byte[1024];
+                        dataBytes = new byte[64000];
+                        lastsize = size;
                     }
+                    
+                    if(lastsize%64000 == 0){
+                        dataBytes = new byte[0];
+                        temp_chunk.put(c, dataBytes);
+                    }   
+                    else
+                        System.out.println("Ultimo chunk menor: "+lastsize);
+                        
                     map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
                     map_chunk_files.put(Utils.geraHexFormat(files[i].getPath()), temp_chunk);
                 }
@@ -175,18 +186,6 @@ public class Backup {
                     sender.start();
                     
                     while(Utils.flag_sending==1){System.out.print("");}
-                    /*
-                    HashMap<String, ArrayList<Integer>> teste = stored_messages_received.get(sha);
-                    
-                    int size = teste.size();
-                    
-                    System.out.println("SIZE: "+size);
-                    
-                    ArrayList<Integer> chunks_stored = teste.get(version);
-                    
-                    for(int x=0;x<chunks_stored.size();x++)
-                        System.out.println("Stored: "+chunks_stored.get(x));
-                    */
 
                     break;
                 case 2:

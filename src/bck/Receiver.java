@@ -36,7 +36,7 @@ public class Receiver extends Thread {
     public void run() {
         while (true) {
 
-            byte[] receive_buffer = new byte[2048];
+            byte[] receive_buffer = new byte[65000];
             String local = "";
                   
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
