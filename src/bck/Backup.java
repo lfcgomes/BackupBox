@@ -34,6 +34,7 @@ public class Backup {
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
     private static HashMap<String, ArrayList<String>> stored_chunks = new HashMap<String, ArrayList<String>>();
+    private static HashMap<String, HashMap<String, byte[]>> stored_files = new HashMap<String, HashMap<String, byte[]>>();
     private static HashMap<String, ArrayList<String>> restored_chunks = new HashMap<String, ArrayList<String>>();
     private static HashMap<String, FileOutputStream> restored_files = new HashMap<String, FileOutputStream>();
 
@@ -92,6 +93,10 @@ public class Backup {
     public static HashMap<String, FileOutputStream> getRestoredFiles() {
         return restored_files;
     }
+    
+    public static HashMap<String, HashMap<String, byte[]>> getStoredFiles() {
+        return stored_files;
+    }
 
     public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
         return map_chunk_files;
@@ -126,7 +131,10 @@ public class Backup {
         InetAddress address = InetAddress.getByName(ip_address);
         socket.joinGroup(address);
 
-
+            String picas = "picaslindas";
+            byte[] picas_byte = picas.getBytes();
+            
+            
         //Utils.readFromFile("configuration.txt");
 
         //TODO lançar thread RECEIVER para estar à espera de chunks?

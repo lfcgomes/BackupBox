@@ -1,11 +1,13 @@
 package bck;
 
-
 import bck.Backup;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -19,7 +21,7 @@ public class Sender extends Thread {
     int MD;
     String sha = "";
     int replication_degree;
-    
+
     public Sender(InetAddress ad, int m_c, int m_d, String sh, int rd) throws IOException {
 
         address = ad;
@@ -32,16 +34,38 @@ public class Sender extends Thread {
     }
 
     public void run() {
+        FileOutputStream file = null;
+        int m = 0;
+        try {
+            file = new FileOutputStream("nome.pdf");
+        } catch (FileNotFoundException ex) {
+            Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+        }
         System.out.println("Sending: " + Backup.getMapShaFiles().get(this.sha).getName());
         int n = 0;
         HashMap<Integer, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
         while (file_to_send_chunks.get(n) != null) {
             //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
-            String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n + 
-                    " " + replication_degree + "\n\n" + file_to_send_chunks.get(n);
+            String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n
+                    + " " + replication_degree + "\n\n";// + file_to_send_chunks.get(n);
+            byte[] msg_byte = msg.getBytes();
+            System.out.println("Tamanho msg_byte: "+msg_byte.length);
+            byte[] final_msg = new byte[msg_byte.length + file_to_send_chunks.get(n).length];
+            System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
+            System.arraycopy(file_to_send_chunks.get(n), 0, final_msg, msg_byte.length, file_to_send_chunks.get(n).length);
             
-            DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MD);
-
+            String ccc = new String(file_to_send_chunks.get(n));
+            //System.out.println("A enviar: "+ccc);
+            DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
+            byte[] temp = new byte[file_to_send_chunks.get(n).length];
+            System.arraycopy(final_msg, msg_byte.length, temp, 0, final_msg.length-msg_byte.length);
+            try {
+                file.write(temp);
+            } catch (IOException ex) {
+                Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+            }
+            m++;
+            
             try {
                 Thread.sleep(10);
                 socket.send(chunk);
@@ -51,6 +75,19 @@ public class Sender extends Thread {
             }
             n++;
         }
+
+        try {
+            file.flush();
+            file.close();
+        } catch (IOException ex) {
+            Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+        }
+       
+        
+        
+        
+        
+        
         try {
             Thread.sleep(10);
         } catch (InterruptedException ex) {
