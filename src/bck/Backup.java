@@ -251,7 +251,7 @@ public class Backup {
                     HashMap<Integer, byte[]> chunks_to_restore = map_chunk_files.get(sha);
                     int n=0;
                     
-                    Res
+                    Restore restore = new Restore(address, mdr);
                     
                     while(chunks_to_restore.size() > n){
                         //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
