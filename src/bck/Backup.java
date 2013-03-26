@@ -4,6 +4,7 @@ package bck;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -39,7 +40,12 @@ public class Backup {
 
     private static HashMap<String,ArrayList<String>> stored_chunks = new HashMap<String,ArrayList<String>>();
     private static HashMap<String,ArrayList<String>> restored_chunks = new HashMap<String,ArrayList<String>>();
+    
+    private static HashMap<String, HashMap<Integer,byte[]>> teste = new HashMap<String, HashMap<Integer,byte[]>>();
 
+    public static HashMap<String, HashMap<Integer,byte[]>> getTeste(){
+        return teste;
+    }
     public static int getFileReplicationDegree(String sha){
         return file_replication_degree.get(sha);}
     
@@ -262,6 +268,15 @@ public class Backup {
 
                     break;
                 case 3:
+                    
+                    FileOutputStream file = new FileOutputStream("nome.pdf");
+                    int m =0;
+                    while(m<teste.get("teste").size()){
+                        file.write(teste.get("teste").get(m));
+                        m++;
+                    }
+                    file.flush();
+                    file.close();
                     break;
                 case 4:
                     break;
