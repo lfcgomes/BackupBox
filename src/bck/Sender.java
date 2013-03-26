@@ -55,6 +55,9 @@ public class Sender extends Thread {
             System.arraycopy(file_to_send_chunks.get(n), 0, final_msg, msg_byte.length, file_to_send_chunks.get(n).length);
             
             String ccc = new String(file_to_send_chunks.get(n));
+            System.out.println("msg size "+msg_byte.length);
+            System.out.println("info size "+file_to_send_chunks.get(n).length);
+            System.out.println("final size "+final_msg.length);
             //System.out.println("A enviar: "+ccc);
             DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
             byte[] temp = new byte[file_to_send_chunks.get(n).length];
