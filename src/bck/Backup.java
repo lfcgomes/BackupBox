@@ -56,7 +56,7 @@ public class Backup {
     public static void initiateMissingChunks(String fileID){
         missing_chunks.put(fileID, new HashMap<Integer, Integer>());
     }
-    public static ArrayList getStoredChunks(String fileID){
+    public static ArrayList<Integer> getStoredChunks(String fileID){
         return stored_chunks.get(fileID);
     }
     
