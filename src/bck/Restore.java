@@ -37,7 +37,7 @@ public class Restore extends Thread {
                   
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
             try {
-                //socket.setSoTimeout(2000);
+                socket.setSoTimeout(2000);
                 Thread.sleep(10);
                 socket.receive(receive_packet);
                 local = InetAddress.getLocalHost().getHostName();
@@ -53,7 +53,6 @@ public class Restore extends Thread {
                 System.out.println("data "+data);
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
-                //String chunkNO = data_parsed[3];
                 String unparsed = data_parsed[3];
                 String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
                 String info = unparsed.substring(unparsed.lastIndexOf("\n")+1);
@@ -69,10 +68,11 @@ public class Restore extends Thread {
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
 
-                    //verifica se já armazenou esse chunk
-                    if (!Backup.existChunk(fileID,chunkNO)) {
+                    //verifica se o ficheiro a restaurar já foi feito backup
+                    if (Backup.getReceivedSendedFiles().contains(fileID)) {
                         //Vamos criar o ficheiro txt para armazenar os chunks desse ficheiro
-                        FileWriter fileWritter = null;
+                        
+                       /*FileWriter fileWritter = null;
                         try {
 
                             File file = new File(fileID + ".txt");
@@ -113,9 +113,9 @@ public class Restore extends Thread {
                             } catch (IOException ex) {
                                 Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        }
+                        }*/
                     }
-                }*/
+                }
             }
         }
     }

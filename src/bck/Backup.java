@@ -37,52 +37,49 @@ public class Backup {
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
     private static HashMap<String,ArrayList<Integer>> stored_chunks = new HashMap<String,ArrayList<Integer>>();
-
+    private static HashMap<String,ArrayList<Integer>> restored_chunks = new HashMap<String,ArrayList<Integer>>();
     
     public static int getFileReplicationDegree(String sha){
-        return file_replication_degree.get(sha);
-    }
+        return file_replication_degree.get(sha);}
     
     public static ArrayList<String> getReceivedSendedFiles(){
-        return received_sended_files;
-    }
+        return received_sended_files;}
     
     public static ArrayList<String> getSendedFiles(){
-        return sended_files;
-    }
+        return sended_files;}
     
     public static void initiateMissingChunks(String fileID){
-        missing_chunks.put(fileID, new HashMap<Integer, Integer>());
-    }
+        missing_chunks.put(fileID, new HashMap<Integer, Integer>());}
+    
     public static ArrayList<Integer> getStoredChunks(String fileID){
-        return stored_chunks.get(fileID);
-    }
+        return stored_chunks.get(fileID);}
+    
+    public static ArrayList<Integer> getRestoredChunks(String fileID){
+        return restored_chunks.get(fileID);}
     
     public static HashMap getMissingChunks(String fileID){
-        return missing_chunks.get(fileID);
-    }
-    public static HashMap getMissingChunks(){
-        return missing_chunks;
-    }
-    public static boolean existChunk(String fileID, String chunkNO){
-        return stored_chunks.get(fileID).contains(chunkNO);
-    }
-    public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
-            return stored_chunks;
-    }
-    public static void initiateStoredChunk(String fileID){
-        stored_chunks.put(fileID, new ArrayList<Integer>());
-    }
-    public static HashMap<String, File> getMapShaFiles() {
-        return map_sha_files;
-    }
-    public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
-        return map_chunk_files;
-    }
+        return missing_chunks.get(fileID);}
     
+    public static HashMap getMissingChunks(){
+        return missing_chunks;}
+    
+    public static boolean existChunk(String fileID, String chunkNO){
+        return stored_chunks.get(fileID).contains(chunkNO);}
+    
+    public static HashMap<String,ArrayList<Integer>> getStoredChunksMap(){
+            return stored_chunks;}
+    
+    public static void initiateStoredChunk(String fileID){
+        stored_chunks.put(fileID, new ArrayList<Integer>());}
+    
+    public static HashMap<String, File> getMapShaFiles() {
+        return map_sha_files;}
+    
+    public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
+        return map_chunk_files;}
+   
     public static String getVersion(){
-        return version;
-    }
+        return version;}
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         GUI g = new GUI();
