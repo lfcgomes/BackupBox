@@ -56,7 +56,7 @@ public class Sender extends Thread {
         } catch (InterruptedException ex) {
             Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.print("Tentanto enviar chunks em falta... ");
+        System.out.print("Tentando enviar chunks em falta... ");
         System.out.println(Backup.getMissingChunks(sha));
         Utils.flag_sending = 0;
     }
