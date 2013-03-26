@@ -91,12 +91,20 @@ public class Message extends Thread {
                     if(data_parsed[0].equalsIgnoreCase("GETCHUNK")){
                         
                         String version = data_parsed[1];
-                        String fileID = data_parsed[2];
                         
-                        if(Backup.getVersion().equalsIgnoreCase(version)) {
+                        if (Backup.getVersion().equalsIgnoreCase(version)) {
                             //Vamos enviar o chunk pedido
                             //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
-                        
+                            
+                            String fileID = data_parsed[2];
+                            String unparsed = data_parsed[3];
+                            String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
+                            
+                            // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
+                            if(Backup.getStoredChunks(fileID).contains(Integer.parseInt(chunkNO))){
+                                System.out.println("");
+                            }
+
                         }
                     }
                     

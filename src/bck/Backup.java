@@ -34,9 +34,6 @@ public class Backup {
      * enviado para ser guardado na LAN */
     private static HashMap<String,HashMap<Integer, Integer>> missing_chunks = new HashMap<String,HashMap<Integer,Integer>>();
     
-    //Guarda o nome do ficheiro e o FileID com que foi guardado na LAN
-    private static HashMap<String, String> backuped_files = new HashMap<String, String>();
-    
     //Guarda o fileID dos ficheiros ficheiros enviados, que foram armazenados na LAN
     private static ArrayList<String> received_sended_files = new ArrayList<String>();
     
@@ -53,10 +50,6 @@ public class Backup {
     
     public static ArrayList<String> getSendedFiles(){
         return sended_files;
-    }
-    
-    public static HashMap<String, String> getBackupedFiles(){
-        return backuped_files;
     }
     
     public static void initiateMissingChunks(String fileID){
