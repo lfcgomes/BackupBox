@@ -5,6 +5,7 @@ package bck;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.security.NoSuchAlgorithmException;
@@ -90,7 +91,7 @@ public class Backup {
         g.show(); 
     }
 
-    public static void backup(int mc, int mdb, int mdr, String ip, String vrs) throws IOException, NoSuchAlgorithmException{
+    public static void backup(int mc, int mdb, int mdr, String ip, String vrs) throws IOException, NoSuchAlgorithmException, InterruptedException{
 
         /*
         int MC = 7777;
@@ -167,12 +168,12 @@ public class Backup {
 
             Scanner in = new Scanner(System.in);
             op = in.nextInt();
+            String sha = "";
+            
             switch (op) {
-
                 case 1:
                     File backup_f = null;
-                    boolean no_files = false;
-                    String sha = "";
+                    boolean no_files = false; 
                     while (true) {
 
                         if (map_sha_files.isEmpty()) {
@@ -245,6 +246,24 @@ public class Backup {
                             System.out.println("Invalid choice!");
                         }
                     }
+                    
+                    /* Ciclo para pedir todos os chunks a restaurar */
+                    HashMap<Integer, byte[]> chunks_to_restore = map_chunk_files.get(sha);
+                    int n=0;
+                    
+                    Res
+                    
+                    while(chunks_to_restore.size() > n){
+                        //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
+                        String getchunk = "GETCHUNK "+getVersion()+" "+sha+" "+n+"\n\n";
+                        DatagramPacket getchunk_packet = new DatagramPacket(getchunk.getBytes(), getchunk.length(), address, MC);
+
+                        Thread.sleep(10);
+                        socket.send(getchunk_packet);
+                        System.out.println(getchunk);
+                        n++;
+                    }
+
                     break;
                 case 3:
                     break;

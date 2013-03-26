@@ -18,16 +18,11 @@ public class Restore extends Thread {
 
     InetAddress address = null;
     int MDR;
-    int MC;
     MulticastSocket socket = null;
-    MulticastSocket socket_control = null;
     
-    public Restore(MulticastSocket socket_mc, InetAddress ad, int m_c, int m_d_r) throws IOException {
+    public Restore(InetAddress ad, int m_d_r) throws IOException {
         address = ad;
         MDR = m_d_r;
-        MC = m_c;
-        socket_control = socket_mc;
-   
         socket = new MulticastSocket(MDR);
         socket.joinGroup(ad);
     }
@@ -44,12 +39,9 @@ public class Restore extends Thread {
                 //socket.setSoTimeout(1000);
                 socket.receive(receive_packet);
                 local = InetAddress.getLocalHost().getHostName();
-                //ip = local.substring(local.indexOf("/"));
+                
             } catch (IOException ex) {
             }
-            
-            //System.out.println("IP LOCAL "+local);
-            //System.out.println("IP PACKET "+receive_packet.getAddress().getHostName().toString());
 
             if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
                 
@@ -58,18 +50,19 @@ public class Restore extends Thread {
 
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
-                String chunkNO = data_parsed[3];
-                String unparsed = data_parsed[4];
-                String degree = unparsed.substring(0, unparsed.indexOf("\n"));
+                //String chunkNO = data_parsed[3];
+                String unparsed = data_parsed[3];
+                String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
                 String info = unparsed.substring(unparsed.lastIndexOf("\n")+1);
                         
                 System.out.println("data "+data);
                 System.out.println("0 -"+data_parsed[0]);
                 System.out.println("1 -"+data_parsed[1]);
                 System.out.println("2 -"+data_parsed[2]);
-                System.out.println("3 -"+data_parsed[3]);
-                System.out.println("4 -"+degree);
-                System.out.println("5 -"+info);
+                System.out.println("3 -"+chunkNO);
+                System.out.println("4 -"+info);
+                
+                /*
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
 
@@ -123,7 +116,7 @@ public class Restore extends Thread {
                             }
                         }
                     }
-                }
+                }*/
             }
         }
     }
