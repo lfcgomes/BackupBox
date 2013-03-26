@@ -35,6 +35,20 @@ public class Backup {
     //Guarda o nome do ficheiro e o FileID com que foi guardado na LAN
     private static HashMap<String, String> backuped_files = new HashMap<String, String>();
     
+    //Guarda o fileID dos ficheiros ficheiros enviados, que foram armazenados na LAN
+    private static ArrayList<String> received_sended_files = new ArrayList<String>();
+    
+    //Guarda o fileID dos ficheiros que foram enviados
+    private static ArrayList<String> sended_files = new ArrayList<String>();
+    
+    public static ArrayList<String> getReceivedSendedFiles(){
+        return received_sended_files;
+    }
+    
+    public static ArrayList<String> getSendedFiles(){
+        return sended_files;
+    }
+    
     public static HashMap<String, String> getBackupedFiles(){
         return backuped_files;
     }
@@ -130,7 +144,6 @@ public class Backup {
                     int size,lastsize = 0;
 
                     while ((size = f.read(dataBytes)) != -1) {	//lê todos os chunks do ficheiro
-                        System.out.println("Size: "+size);
                         temp_chunk.put(c, dataBytes);
                         c++;
                         dataBytes = new byte[64000];
@@ -141,8 +154,7 @@ public class Backup {
                         dataBytes = new byte[0];
                         temp_chunk.put(c, dataBytes);
                     }   
-                    else
-                        System.out.println("Ultimo chunk menor: "+lastsize);
+                    
                         
                     map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
                     map_chunk_files.put(Utils.geraHexFormat(files[i].getPath()), temp_chunk);
@@ -195,6 +207,10 @@ public class Backup {
                     //TODO lançar thread Sender?
                     Utils.flag_sending = 1;
                     Backup.initiateMissingChunks(sha);
+                    
+                    //Adiciona o ficheiro que está a enviar, aos array de ficheiros enviados
+                    sended_files.add(sha);
+                    
                     Message message = new Message(socket, address, MC, replication_degree);
                     message.start();
                     Sender sender = new Sender(address, MC, MD, sha, replication_degree);
@@ -204,10 +220,30 @@ public class Backup {
 
                     break;
                 case 2:
-                    System.out.println("Enter the name of your file: ");
-                    String file = in.next();
-                    
-                    
+                    while (true) {
+
+                        if (received_sended_files.isEmpty()) {
+                            System.out.println("No files to restore!\n");
+                            no_files = true;
+                            break;
+                        }
+                        System.out.println("\nChoose a file to restore:");
+                        for (int i = 0; i < received_sended_files.size(); i++) {
+                            if (map_sha_files.get(received_sended_files.get(i)) != null) {
+                                System.out.println(i + 1 + ": " + map_sha_files.get(received_sended_files.get(i)).getName());
+                            }
+                        }
+                        System.out.print("Option: ");
+                        int file_choice = in.nextInt();
+
+                        try {
+                            backup_f = files[file_choice - 1];
+                            sha = Utils.geraHexFormat(backup_f.getPath());
+                            break;
+                        } catch (Exception ex) {
+                            System.out.println("Invalid choice!");
+                        }
+                    }
                     break;
                 case 3:
                     break;

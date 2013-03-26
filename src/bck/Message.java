@@ -45,37 +45,44 @@ public class Message extends Thread {
                 //Temos de saber quantas mensagens STORED já recebemos, para saber se ainda temos de guardar
                 if(data_parsed[0].equalsIgnoreCase("STORED")){
                     i++;
-                    System.out.println("numero de stores que recebeu " +i);
+                    System.out.println("numero de stores que recebeu " + i);
                     System.out.println("recebi um stored");
                     String version = data_parsed[1];
                     String fileID = data_parsed[2];
-                    
-                    int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
-                    System.out.println("store do chunkNO "+chunkNO);
-                    HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
-                    missing = Backup.getMissingChunks(fileID);
-            
-                    //não vai acontecer
-                    if (missing.get(chunkNO) == null) {
-                        if ((replication_degree - 1) == 0) 
-                            missing.remove(chunkNO);
-                         else 
-                            missing.put(chunkNO, replication_degree - 1);
-                        System.out.println("entrou aqui");
-                    } else {//vai diminuir o replication degree obrigatorio para o chunk
-                        int old_rep = missing.get(chunkNO);
 
-                        if (old_rep == 1)
-                            missing.remove(chunkNO);
-                        else
-                            missing.put(chunkNO,old_rep-1);
+                    if (Backup.getSendedFiles().contains(fileID)) {
+                        if (!Backup.getReceivedSendedFiles().contains(fileID)) {
+                            Backup.getReceivedSendedFiles().add(fileID);
+                        }
+
+                        int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
+                        System.out.println("store do chunkNO " + chunkNO);
+                        HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
+                        missing = Backup.getMissingChunks(fileID);
+
+                        //não vai acontecer
+                        if (missing.get(chunkNO) == null) {
+                            if ((replication_degree - 1) == 0) {
+                                missing.remove(chunkNO);
+                            } else {
+                                missing.put(chunkNO, replication_degree - 1);
+                            }
+                            System.out.println("entrou aqui");
+                        } else {//vai diminuir o replication degree obrigatorio para o chunk
+                            int old_rep = missing.get(chunkNO);
+
+                            if (old_rep == 1) {
+                                missing.remove(chunkNO);
+                            } else {
+                                missing.put(chunkNO, old_rep - 1);
+                            }
+                        }
+
+                        Backup.getMissingChunks().put(fileID, missing);
                     }
-                    
-                    Backup.getMissingChunks().put(fileID, missing);
-                    
                 }
             }
-        }
+    }
         
     }
 }
