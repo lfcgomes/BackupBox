@@ -53,7 +53,7 @@ public class Utils {
         return sb.toString();
     }
 
-    public static void readFromFile(String filename) {
+    public static String readFromFile(String filename, String chunkNO) {
         try {
             // Open the file that is the first 
             // command line parameter
@@ -66,12 +66,17 @@ public class Utils {
             while ((strLine = br.readLine()) != null) {
                 // Print the content on the console
                 System.out.println(strLine);
+                String[] data_parsed = strLine.split(" ");
+                if(data_parsed[1].equalsIgnoreCase(chunkNO))
+                    return data_parsed[0];
+                
             }
             //Close the input stream
             in.close();
         } catch (Exception e) {//Catch exception if any
             System.err.println("Error: " + e.getMessage());
         }
+        return "";
     }
 
     public static ArrayList xmlParser(String filename) throws ParserConfigurationException {
