@@ -65,14 +65,10 @@ public class Restore extends Thread {
                 System.out.println("3 -"+chunkNO);
                 System.out.println("4 -"+info);
                 
-                /*
+                
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
 
-                    //verifica se ja existe uma key criada no mapa para aquele ficheiro
-                    if (!Backup.getStoredChunksMap().containsKey(fileID)) {
-                        Backup.initiateStoredChunk(fileID);
-                    }
                     //verifica se já armazenou esse chunk
                     if (!Backup.existChunk(fileID,chunkNO)) {
                         //Vamos criar o ficheiro txt para armazenar os chunks desse ficheiro
