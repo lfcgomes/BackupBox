@@ -252,6 +252,7 @@ public class Backup {
                     int n=0;
                     
                     Restore restore = new Restore(address, mdr);
+                    restore.start();
                     
                     while(chunks_to_restore.size() > n){
                         //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
