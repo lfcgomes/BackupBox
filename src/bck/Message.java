@@ -13,12 +13,15 @@ public class Message extends Thread {
 
     MulticastSocket socket = null;
     InetAddress address = null;
-    int port;
+    int MC;
+    int MDR;
+    
 
-    public Message(MulticastSocket s, InetAddress ad, int p) {
+    public Message(MulticastSocket s, InetAddress ad, int p, int mdr) {
         socket = s;
         address = ad;
-        port = p;
+        MC = p;
+        MDR = mdr;
     }
 
     public void run() {
