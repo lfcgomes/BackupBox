@@ -22,65 +22,80 @@ public class Message extends Thread {
     }
 
     public void run() {
-        int i =0;
+        int i = 0;
         while (true) {
             byte[] receive_buffer = new byte[1024];
-				
+
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
             String local = "";
             String ip = "";
-            
-            try {   
+
+            try {
                 socket.receive(receive_packet);
-                local = InetAddress.getLocalHost().getHostName();                         
-            } catch (IOException ex) {}
-            
+                local = InetAddress.getLocalHost().getHostName();
+            } catch (IOException ex) {
+            }
+
             String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
             String[] data_parsed = data.split(" ");
-            
+
             if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
-                
+
                 //Temos de saber quantas mensagens STORED já recebemos, para saber se ainda temos de guardar
-                if(data_parsed[0].equalsIgnoreCase("STORED")){
+                if (data_parsed[0].equalsIgnoreCase("STORED")) {
                     i++;
                     System.out.println("numero de stores que recebeu " + i);
                     System.out.println("recebi um stored");
                     String version = data_parsed[1];
                     String fileID = data_parsed[2];
 
-                    if (Backup.getSendedFiles().contains(fileID)) {
-                        if (!Backup.getReceivedSendedFiles().contains(fileID)) {
-                            Backup.getReceivedSendedFiles().add(fileID);
-                        }
+                    if (Backup.getVersion().equalsIgnoreCase(version)) {
 
-                        int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
-                        System.out.println("store do chunkNO " + chunkNO);
-                        HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
-                        missing = Backup.getMissingChunks(fileID);
-
-                        //não vai acontecer
-                        if (missing.get(chunkNO) == null) {
-                            if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
-                                missing.remove(chunkNO);
-                            } else {
-                                missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
+                        if (Backup.getSendedFiles().contains(fileID)) {
+                            if (!Backup.getReceivedSendedFiles().contains(fileID)) {
+                                Backup.getReceivedSendedFiles().add(fileID);
                             }
-                            System.out.println("entrou aqui");
-                        } else {//vai diminuir o replication degree obrigatorio para o chunk
-                            int old_rep = missing.get(chunkNO);
 
-                            if (old_rep == 1) {
-                                missing.remove(chunkNO);
+                            int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
+                            System.out.println("store do chunkNO " + chunkNO);
+                            HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
+                            missing = Backup.getMissingChunks(fileID);
+
+                            //não vai acontecer
+                            if (missing.get(chunkNO) == null) {
+                                if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
+                                    missing.remove(chunkNO);
+                                } else {
+                                    missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
+                                }
+                                System.out.println("entrou aqui");
                             } else {
-                                missing.put(chunkNO, old_rep - 1);
-                            }
-                        }
+                                //vai diminuir o replication degree obrigatorio para o chunk
+                                int old_rep = missing.get(chunkNO);
 
-                        Backup.getMissingChunks().put(fileID, missing);
+                                if (old_rep == 1) {
+                                    missing.remove(chunkNO);
+                                } else {
+                                    missing.put(chunkNO, old_rep - 1);
+                                }
+                            }
+
+                            Backup.getMissingChunks().put(fileID, missing);
+                        }
                     }
-                }
-                else{
-                    //GETCHUNK
+                } else {
+                    //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
+                    if(data_parsed[0].equalsIgnoreCase("GETCHUNK")){
+                        
+                        String version = data_parsed[1];
+                        String fileID = data_parsed[2];
+                        
+                        if(Backup.getVersion().equalsIgnoreCase(version)) {
+                            //Vamos enviar o chunk pedido
+                            //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
+                        
+                        }
+                    }
                     
                 }
             }
