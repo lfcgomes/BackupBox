@@ -4,6 +4,8 @@ package bck;
 import bck.Backup;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -37,7 +39,7 @@ public class Restore extends Thread {
                   
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
             try {
-                socket.setSoTimeout(2000);
+                //socket.setSoTimeout(2000);
                 Thread.sleep(10);
                 socket.receive(receive_packet);
                 local = InetAddress.getLocalHost().getHostName();
@@ -70,50 +72,40 @@ public class Restore extends Thread {
 
                     //verifica se o ficheiro a restaurar já foi feito backup
                     if (Backup.getReceivedSendedFiles().contains(fileID)) {
-                        //Vamos criar o ficheiro txt para armazenar os chunks desse ficheiro
                         
-                       /*FileWriter fileWritter = null;
-                        try {
-
-                            File file = new File(fileID + ".txt");
-                            //se o ficheiro não existir, cria-o
-                            if (!file.exists()) {
-                                file.createNewFile();
-                            }
-
-
-                            fileWritter = new FileWriter(file.getName(), true);
-                            BufferedWriter bufferWritter = new BufferedWriter(fileWritter);
-                            bufferWritter.write(info + " " + chunkNO + "\n");
-                            bufferWritter.close();
-
-                            //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
-                            Backup.getStoredChunks(fileID).add(chunkNO);
-                            //System.out.println("Guardei: "+chunkNO);
-                            //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
-        
-                            String msg="STORED "+version+" "+fileID+" "+chunkNO+"\n\n";
-                            DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
+                        //Se é o primeiro chunk a ser restaurado, iniciar o HashMap
+                        if(Backup.getRestoredChunks(fileID) == null){
                             
-                            Random randomGenerator = new Random();
-                            int randomDelay = randomGenerator.nextInt(400);
-                            
+                            Backup.initiateRestoredChunks(fileID);
+                            //
+                            FileOutputStream file = null;
                             try {
-                                //Thread.sleep(randomDelay);
-                                socket_control.send(chunk_stored);
-                            } catch (Exception ex) {
+                                file = new FileOutputStream(Backup.getMapShaFiles().get(fileID).getName());
+                            } catch (FileNotFoundException ex) {
                                 Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                            
-                        } catch (IOException ex) {
-                            Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
-                        } finally {
+                            Backup.getRestoredFiles().put(fileID, file);
+                        }
+                                                
+                        if(!Backup.getRestoredChunks(fileID).contains(chunkNO)){
                             try {
-                                fileWritter.close();
+                                Backup.getRestoredFiles().get(fileID).write(info.getBytes());
+                                //Backup.getRestoredChunks(fileID).add(chunkNO); só depois de guardar!
                             } catch (IOException ex) {
                                 Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }
-                        }*/
+                            
+                        }
+                        
+                        if(Backup.getMapChunkFiles().get(fileID).size() == Backup.getRestoredChunks(fileID).size()){
+                            try {
+                                Backup.getRestoredFiles().get(fileID).flush();
+                                Backup.getRestoredFiles().get(fileID).close();
+                            } catch (IOException ex) {
+                                Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                           
+                        }
                     }
                 }
             }
