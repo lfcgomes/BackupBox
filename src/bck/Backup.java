@@ -21,8 +21,8 @@ public class Backup {
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
     private static HashMap<String, Integer> file_replication_degree = new HashMap<String, Integer>();
     /* Para cada fileID, guarda o número do chunk, e o respectivo chunk*/
-    private static HashMap<String, HashMap<Integer, byte[]>> map_chunk_files =
-            new HashMap<String, HashMap<Integer, byte[]>>();
+    private static HashMap<String, HashMap<String, byte[]>> map_chunk_files =
+            new HashMap<String, HashMap<String, byte[]>>();
     /* Para cada fileID, guarda um HashMap com o número do chunk, e quantas vezes ele ainda precisa de ser
      * enviado para ser guardado na LAN */
     private static HashMap<String, HashMap<Integer, Integer>> missing_chunks = new HashMap<String, HashMap<Integer, Integer>>();
@@ -101,7 +101,7 @@ public class Backup {
         return stored_files;
     }
 
-    public static HashMap<String, HashMap<Integer, byte[]>> getMapChunkFiles() {
+    public static HashMap<String, HashMap<String, byte[]>> getMapChunkFiles() {
         return map_chunk_files;
     }
 
@@ -160,7 +160,7 @@ public class Backup {
             }*/
             for (int i = 0; i < files.length; i++) {
 
-                HashMap<Integer, byte[]> temp_chunk = new HashMap<Integer, byte[]>();
+                HashMap<String, byte[]> temp_chunk = new HashMap<String, byte[]>();
 
                 if (files[i].isFile()) {
 
@@ -172,7 +172,7 @@ public class Backup {
                     int size, lastsize = 0;
                     
                     while ((size = f.read(dataBytes)) != -1) {	//lê todos os chunks do ficheiro
-                        temp_chunk.put(c, dataBytes);
+                        temp_chunk.put(String.valueOf(c), dataBytes);
                         c++;
                         dataBytes = new byte[64000];
                         lastsize = size;
@@ -181,15 +181,15 @@ public class Backup {
                     if (lastsize % 64000 == 0) {
                         System.out.println("last");
                         dataBytes = new byte[0];
-                        temp_chunk.put(c-1, dataBytes);
+                        temp_chunk.put(String.valueOf(c-1), dataBytes);
                     }
                     else{
                         byte[] last_chunk = new byte[lastsize];
-                        System.arraycopy(dataBytes, 0, last_chunk, 0, lastsize);
-                        temp_chunk.remove(c-1); //
-                        temp_chunk.put(c-1, last_chunk);
+                        System.arraycopy(temp_chunk.get(String.valueOf(c-1)), 0, last_chunk, 0, lastsize);
+                        temp_chunk.remove(String.valueOf(c-1)); //
+                        temp_chunk.put(String.valueOf(c-1), last_chunk);
                     }
-                    //System.out.println("CHUNK "+c-1+": "+temp_chunk.get(c-1));
+                    
                     map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
                     map_chunk_files.put(Utils.geraHexFormat(files[i].getPath()), temp_chunk);
                 }
@@ -282,7 +282,7 @@ public class Backup {
                     }
 
                     /* Ciclo para pedir todos os chunks a restaurar */
-                    HashMap<Integer, byte[]> chunks_to_restore = map_chunk_files.get(sha);
+                    HashMap<String, byte[]> chunks_to_restore = map_chunk_files.get(sha);
                     int n = 0;
 
                     Restore restore = new Restore(address, mdr);

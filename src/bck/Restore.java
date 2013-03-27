@@ -56,16 +56,9 @@ public class Restore extends Thread {
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
                 String unparsed = data_parsed[3];
-                String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
-                String info = unparsed.substring(unparsed.lastIndexOf("\n")+1);
-                        
+                String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));             
                 
-                System.out.println("0 -"+data_parsed[0]);
-                System.out.println("1 -"+data_parsed[1]);
-                System.out.println("2 -"+data_parsed[2]);
-                System.out.println("3 -"+chunkNO);
-                System.out.println("4 -"+info);
-                
+                byte[] info = new byte[Backup.getMapChunkFiles().get(fileID).get(chunkNO).length];
                 
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
@@ -89,7 +82,7 @@ public class Restore extends Thread {
                                                 
                         if(!Backup.getRestoredChunks(fileID).contains(chunkNO)){
                             try {
-                                Backup.getRestoredFiles().get(fileID).write(info.getBytes());
+                                Backup.getRestoredFiles().get(fileID).write(info);
                                 //Backup.getRestoredChunks(fileID).add(chunkNO); só depois de guardar!
                             } catch (IOException ex) {
                                 Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);

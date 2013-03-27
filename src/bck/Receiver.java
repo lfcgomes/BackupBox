@@ -56,17 +56,17 @@ public class Receiver extends Thread {
                 //byte[] temp = receive_packet.getData().
                 String data = new String(receive_packet.getData(), 0, 83);
                 String[] data_parsed = data.split(" ");
-                String[] data_parsed2 = data.split("\n\n");
-                String coiso = "\n\n";
+                //String[] data_parsed2 = data.split("\n\n");
+                //String coiso = "\n\n";
                 
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
                 String chunkNO = data_parsed[3];
-                String unparsed = data_parsed[4];
+                //String unparsed = data_parsed[4];
                 
-                String degree = unparsed.substring(0, unparsed.indexOf("\n"));
+                //String degree = unparsed.substring(0, unparsed.indexOf("\n"));
                 
-                int tamanho = data_parsed2[0].getBytes().length+coiso.getBytes().length;
+                //int tamanho = data_parsed2[0].getBytes().length+coiso.getBytes().length;
                 byte[] info = new byte[64000]; 
                 int no = Integer.parseInt(chunkNO);
                 //System.out.println("msg size "+tamanho);
