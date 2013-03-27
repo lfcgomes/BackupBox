@@ -152,12 +152,8 @@ public class Backup {
 
             menu();
 
-            File[] files = dir.listFiles();  /*      
-            for (int i = 0; i < files.length; i++) {
-            if(files[i].isFile()){
-            map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
-            }
-            }*/
+            File[] files = dir.listFiles(); 
+            
             for (int i = 0; i < files.length; i++) {
 
                 HashMap<String, byte[]> temp_chunk = new HashMap<String, byte[]>();
@@ -179,14 +175,13 @@ public class Backup {
                     }
 
                     if (lastsize % 64000 == 0) {
-                        System.out.println("last");
                         dataBytes = new byte[0];
                         temp_chunk.put(String.valueOf(c-1), dataBytes);
                     }
                     else{
                         byte[] last_chunk = new byte[lastsize];
                         System.arraycopy(temp_chunk.get(String.valueOf(c-1)), 0, last_chunk, 0, lastsize);
-                        temp_chunk.remove(String.valueOf(c-1)); //
+                        temp_chunk.remove(String.valueOf(c-1));
                         temp_chunk.put(String.valueOf(c-1), last_chunk);
                     }
                     
@@ -253,7 +248,7 @@ public class Backup {
                     while (Utils.flag_sending == 1) {
                         System.out.print("");
                     }
-
+                    System.out.println("File sent to the LAN");
                     break;
                 case 2:
                     while (true) {
@@ -284,10 +279,11 @@ public class Backup {
                     /* Ciclo para pedir todos os chunks a restaurar */
                     HashMap<String, byte[]> chunks_to_restore = map_chunk_files.get(sha);
                     int n = 0;
-
+                    
+                    System.out.println("Restoring...");
                     Restore restore = new Restore(address, mdr);
                     restore.start();
-
+                    
                     while (chunks_to_restore.size() > n) {
                         //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
                         String getchunk = "GETCHUNK " + getVersion() + " " + sha + " " + n + "\n\n";
@@ -295,10 +291,15 @@ public class Backup {
 
                         Thread.sleep(10);
                         socket.send(getchunk_packet);
-                        System.out.println(getchunk);
                         n++;
+                        Utils.flag_restoring = 1;
                     }
-
+                    while(Utils.flag_restoring ==1){
+                        System.out.print("");
+                    }
+                    
+                    System.out.println("Done!");
+                    
                     break;
                 case 3:
                     

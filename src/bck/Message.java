@@ -8,6 +8,7 @@ import java.net.InetAddress;
 import java.net.MulticastSocket;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -51,8 +52,7 @@ public class Message extends Thread {
                 //Temos de saber quantas mensagens STORED já recebemos, para saber se ainda temos de guardar
                 if (data_parsed[0].equalsIgnoreCase("STORED")) {
                     i++;
-                    System.out.println("numero de stores que recebeu " + i);
-                    System.out.println("recebi um stored");
+
                     String version = data_parsed[1];
                     String fileID = data_parsed[2];
 
@@ -64,7 +64,6 @@ public class Message extends Thread {
                             }
 
                             int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
-                            System.out.println("store do chunkNO " + chunkNO);
                             HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
                             missing = Backup.getMissingChunks(fileID);
 
@@ -75,7 +74,6 @@ public class Message extends Thread {
                                 } else {
                                     missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
                                 }
-                                System.out.println("entrou aqui");
                             } else {
                                 //vai diminuir o replication degree obrigatorio para o chunk
                                 int old_rep = missing.get(chunkNO);
@@ -95,7 +93,6 @@ public class Message extends Thread {
                     if (data_parsed[0].equalsIgnoreCase("GETCHUNK")) {
 
                         String version = data_parsed[1];
-                        System.out.println("recebi um getchunk");
                         if (Backup.getVersion().equalsIgnoreCase(version)) {
 
                             //Vamos enviar o chunk pedido
@@ -106,12 +103,7 @@ public class Message extends Thread {
                             
                             //System.out.println("vamos ver se tenho o chunk");
                             // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
-                            if (Backup.getStoredChunks(fileID).contains(chunkNO)) {
-                                System.out.println("Tenho o chunk pedido: "+chunkNO);
-
-                                //String chunk = Utils.readFromFile(fileID+"_"+chunkNO);
-                                //System.out.println("info " + info);
-                                
+                            if (Backup.getStoredChunks(fileID).contains(chunkNO)) {                              
                                 
                                 RandomAccessFile f = null;
                                 try {
@@ -128,7 +120,7 @@ public class Message extends Thread {
                                 }
                                 
                                 
-                                System.out.println("SIZE DO CHUNK A ENVIAR: "+chunk.length);
+                                //System.out.println("SIZE DO CHUNK A ENVIAR: "+chunk.length);
                                 
                                 //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
                                 
@@ -136,15 +128,21 @@ public class Message extends Thread {
                                 String msg = "CHUNK " + Backup.getVersion() + " "+fileID+" " + chunkNO + "\n\n";
                                 
                                 byte[] msg_byte = msg.getBytes();
+                                
+                                //System.out.println("MESSAGE BYTE "+ msg_byte.length);
                                 byte[] final_msg = new byte[msg_byte.length + chunk.length];
                                 System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
                                 System.arraycopy(chunk, 0, final_msg, msg_byte.length, chunk.length);
 
                                 DatagramPacket chunk_packet = new DatagramPacket(final_msg, final_msg.length, this.address, this.MDR);
                                 
+                                //Random randomGenerator = new Random();
+                                //int randomDelay = randomGenerator.nextInt(400);
+                                
                                 try {
+                                    Thread.sleep(100);
                                     socket_restore.send(chunk_packet);
-                                } catch (IOException ex) {
+                                } catch (Exception ex) {
                                     Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                 }
 

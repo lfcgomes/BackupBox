@@ -25,6 +25,7 @@ import org.xml.sax.SAXParseException;
 public class Utils {
 
     static int flag_sending = 0;
+    static int flag_restoring = 0;
     /* */
 
     public static String geraHexFormat(String f)

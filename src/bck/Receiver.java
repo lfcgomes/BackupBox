@@ -39,7 +39,7 @@ public class Receiver extends Thread {
     public void run() {
         while (true) {
 
-            byte[] receive_buffer = new byte[64083];
+            byte[] receive_buffer = new byte[65000];
             String local = "";
 
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
@@ -53,34 +53,16 @@ public class Receiver extends Thread {
 
             if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
 
-                //byte[] temp = receive_packet.getData().
                 String data = new String(receive_packet.getData(), 0, 83);
                 String[] data_parsed = data.split(" ");
-                //String[] data_parsed2 = data.split("\n\n");
-                //String coiso = "\n\n";
                 
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
                 String chunkNO = data_parsed[3];
-                //String unparsed = data_parsed[4];
-                
-                //String degree = unparsed.substring(0, unparsed.indexOf("\n"));
-                
-                //int tamanho = data_parsed2[0].getBytes().length+coiso.getBytes().length;
+
                 byte[] info = new byte[64000]; 
-                int no = Integer.parseInt(chunkNO);
-                //System.out.println("msg size "+tamanho);
-                //System.out.println("info size "+info.length);
-                //System.out.println("final size "+receive_buffer.length);
+
                 System.arraycopy(receive_buffer, 83, info, 0, 64000);
-                
-                //for(int x=info.length-1; x>=0;x--)
-                //    System.out.print(info[x]);
-                
-                //if(Backup.getTeste().get("teste") == null)
-                //    Backup.getTeste().put("teste", new HashMap<Integer, byte[]>());
-                //Backup.getTeste().get("teste").put(no, info);
-                
                 
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
@@ -91,8 +73,7 @@ public class Receiver extends Thread {
                     }
                     //verifica se já armazenou esse chunk
                     if (!Backup.existChunk(fileID, chunkNO)) {
-                        //Vamos criar o ficheiro txt para armazenar os chunks desse ficheiro
-                        //FileWriter fileWritter = null;
+                       
                         FileOutputStream f;
                         try {
                             f = new FileOutputStream(fileID+"_"+chunkNO);
@@ -103,11 +84,9 @@ public class Receiver extends Thread {
                             Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
                         }
 
-                        //fileWritter = new FileWriter(file.getName(), true);
-
                         //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
                         Backup.getStoredChunks(fileID).add(chunkNO);
-                        //System.out.println("Guardei: "+chunkNO);
+
                         //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
 
                         String msg = "STORED " + version + " " + fileID + " " + chunkNO + "\n\n";

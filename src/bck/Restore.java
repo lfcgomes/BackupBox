@@ -32,7 +32,6 @@ public class Restore extends Thread {
     @Override
     public void run() {
         while (true) {
-            System.out.println("RESTORE");
 
             byte[] receive_buffer = new byte[65000];
             String local = "";
@@ -52,13 +51,14 @@ public class Restore extends Thread {
                 
                 String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                 String[] data_parsed = data.split(" ");
-                System.out.println("data "+data);
+                
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
                 String unparsed = data_parsed[3];
                 String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));             
                 
                 byte[] info = new byte[Backup.getMapChunkFiles().get(fileID).get(chunkNO).length];
+                System.arraycopy(receive_buffer, 78, info, 0, Backup.getMapChunkFiles().get(fileID).get(chunkNO).length);
                 
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {
@@ -83,7 +83,7 @@ public class Restore extends Thread {
                         if(!Backup.getRestoredChunks(fileID).contains(chunkNO)){
                             try {
                                 Backup.getRestoredFiles().get(fileID).write(info);
-                                //Backup.getRestoredChunks(fileID).add(chunkNO); só depois de guardar!
+                                Backup.getRestoredChunks(fileID).add(chunkNO);
                             } catch (IOException ex) {
                                 Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }
@@ -92,8 +92,10 @@ public class Restore extends Thread {
                         
                         if(Backup.getMapChunkFiles().get(fileID).size() == Backup.getRestoredChunks(fileID).size()){
                             try {
+                                Utils.flag_restoring = 0;
                                 Backup.getRestoredFiles().get(fileID).flush();
                                 Backup.getRestoredFiles().get(fileID).close();
+                                
                             } catch (IOException ex) {
                                 Logger.getLogger(Restore.class.getName()).log(Level.SEVERE, null, ex);
                             }

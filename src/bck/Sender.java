@@ -35,20 +35,11 @@ public class Sender extends Thread {
 
     public void run() {
         FileOutputStream file = null;
-        int m = 0;
-        try {
-            file = new FileOutputStream("super lindo.pdf");
-        } catch (FileNotFoundException ex) {
-            Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        System.out.println("Sending: " + Backup.getMapShaFiles().get(this.sha).getName());
+        
+        System.out.println("Sending...");
         int n = 0;
         HashMap<String, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
-        int total = 0;
-        for(int x=0; x<file_to_send_chunks.size();x++)
-            total += file_to_send_chunks.get(String.valueOf(x)).length;
-        System.out.println("TAMANHO TOTAL: "+total);
-        
+  
         while (file_to_send_chunks.get(String.valueOf(n)) != null) {
             //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
             String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n
@@ -62,17 +53,9 @@ public class Sender extends Thread {
             System.arraycopy(file_to_send_chunks.get(String.valueOf(n)), 0, final_msg, msg_byte.length, file_to_send_chunks.get(String.valueOf(n)).length);
             
             DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
-            byte[] temp = new byte[file_to_send_chunks.get(String.valueOf(n)).length];
-            System.arraycopy(final_msg, msg_byte.length, temp, 0, final_msg.length-msg_byte.length);
+                   
             try {
-                file.write(temp);
-            } catch (IOException ex) {
-                Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            m++;
-            
-            try {
-                Thread.sleep(10);
+                Thread.sleep(100);
                 socket.send(chunk);
                 Backup.getMissingChunks(sha).put(n, replication_degree);
             } catch (Exception ex) {
@@ -80,26 +63,15 @@ public class Sender extends Thread {
             }
             n++;
         }
-
-        try {
-            file.flush();
-            file.close();
-        } catch (IOException ex) {
-            Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
-        }
-       
-        
-        
-        
-        
-        
+           
         try {
             Thread.sleep(10);
         } catch (InterruptedException ex) {
             Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.print("Tentando enviar chunks em falta... ");
-        System.out.println(Backup.getMissingChunks(sha));
+        
+        if(!Backup.getMissingChunks(sha).isEmpty());
+            System.out.print("Tentando enviar chunks em falta... ");
         Utils.flag_sending = 0;
     }
 }
