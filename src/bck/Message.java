@@ -1,6 +1,8 @@
 package bck;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
@@ -34,7 +36,6 @@ public class Message extends Thread {
 
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
             String local = "";
-            String ip = "";
 
             try {
                 socket.receive(receive_packet);
@@ -99,28 +100,50 @@ public class Message extends Thread {
 
                             //Vamos enviar o chunk pedido
                             
-                            
                             String fileID = data_parsed[2];
                             String unparsed = data_parsed[3];
                             String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
-                            System.out.println("getchunk que recebi: "+fileID+" "+chunkNO);
-                            System.out.println("vamos ver se tenho o chunk");
+                            
+                            //System.out.println("vamos ver se tenho o chunk");
                             // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
                             if (Backup.getStoredChunks(fileID).contains(chunkNO)) {
-                                System.out.println("Tenho o chunk pedido");
+                                System.out.println("Tenho o chunk pedido: "+chunkNO);
 
-                                String info = Utils.readFromFile(fileID+".txt", chunkNO);
-                                System.out.println("info " + info);
+                                //String chunk = Utils.readFromFile(fileID+"_"+chunkNO);
+                                //System.out.println("info " + info);
+                                
+                                
+                                RandomAccessFile f = null;
+                                try {
+                                    f = new RandomAccessFile(fileID+"_"+chunkNO, "r");
+                                } catch (FileNotFoundException ex) {
+                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                byte[] chunk = null;
+                                try {
+                                    chunk = new byte[(int)f.length()];
+                                    f.read(chunk);
+                                } catch (Exception ex) {
+                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                
+                                
+                                System.out.println("SIZE DO CHUNK A ENVIAR: "+chunk.length);
                                 
                                 //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
                                 
                                 //Se tenho o chunk, tenho que ir ao ficheiro buscar
-                                String msg = "CHUNK " + Backup.getVersion() + " "+fileID+" " + chunkNO + "\n\n" + info;
+                                String msg = "CHUNK " + Backup.getVersion() + " "+fileID+" " + chunkNO + "\n\n";
+                                
+                                byte[] msg_byte = msg.getBytes();
+                                byte[] final_msg = new byte[msg_byte.length + chunk.length];
+                                System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
+                                System.arraycopy(chunk, 0, final_msg, msg_byte.length, chunk.length);
 
-                                DatagramPacket chunk = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MDR);
-
+                                DatagramPacket chunk_packet = new DatagramPacket(final_msg, final_msg.length, this.address, this.MDR);
+                                
                                 try {
-                                    socket_restore.send(chunk);
+                                    socket_restore.send(chunk_packet);
                                 } catch (IOException ex) {
                                     Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                 }

@@ -39,7 +39,7 @@ public class Receiver extends Thread {
     public void run() {
         while (true) {
 
-            byte[] receive_buffer = new byte[65000];
+            byte[] receive_buffer = new byte[64083];
             String local = "";
 
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
@@ -47,12 +47,9 @@ public class Receiver extends Thread {
                 //socket.setSoTimeout(1000);
                 socket.receive(receive_packet);
                 local = InetAddress.getLocalHost().getHostName();
-                //ip = local.substring(local.indexOf("/"));
+
             } catch (IOException ex) {
             }
-
-            //System.out.println("IP LOCAL "+local);
-            //System.out.println("IP PACKET "+receive_packet.getAddress().getHostName().toString());
 
             if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
 
@@ -72,15 +69,17 @@ public class Receiver extends Thread {
                 int tamanho = data_parsed2[0].getBytes().length+coiso.getBytes().length;
                 byte[] info = new byte[64000]; 
                 int no = Integer.parseInt(chunkNO);
-                System.out.println("msg size "+tamanho);
-                System.out.println("info size "+info.length);
-                System.out.println("final size "+receive_buffer.length);
+                //System.out.println("msg size "+tamanho);
+                //System.out.println("info size "+info.length);
+                //System.out.println("final size "+receive_buffer.length);
                 System.arraycopy(receive_buffer, 83, info, 0, 64000);
                 
+                //for(int x=info.length-1; x>=0;x--)
+                //    System.out.print(info[x]);
                 
-                if(Backup.getTeste().get("teste") == null)
-                    Backup.getTeste().put("teste", new HashMap<Integer, byte[]>());
-                Backup.getTeste().get("teste").put(no, info);
+                //if(Backup.getTeste().get("teste") == null)
+                //    Backup.getTeste().put("teste", new HashMap<Integer, byte[]>());
+                //Backup.getTeste().get("teste").put(no, info);
                 
                 
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema

@@ -170,7 +170,7 @@ public class Backup {
                     byte[] dataBytes = new byte[64000];
                     int c = 0;
                     int size, lastsize = 0;
-
+                    
                     while ((size = f.read(dataBytes)) != -1) {	//lê todos os chunks do ficheiro
                         temp_chunk.put(c, dataBytes);
                         c++;
@@ -179,11 +179,17 @@ public class Backup {
                     }
 
                     if (lastsize % 64000 == 0) {
+                        System.out.println("last");
                         dataBytes = new byte[0];
-                        temp_chunk.put(c, dataBytes);
+                        temp_chunk.put(c-1, dataBytes);
                     }
-
-
+                    else{
+                        byte[] last_chunk = new byte[lastsize];
+                        System.arraycopy(dataBytes, 0, last_chunk, 0, lastsize);
+                        temp_chunk.remove(c-1); //
+                        temp_chunk.put(c-1, last_chunk);
+                    }
+                    //System.out.println("CHUNK "+c-1+": "+temp_chunk.get(c-1));
                     map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
                     map_chunk_files.put(Utils.geraHexFormat(files[i].getPath()), temp_chunk);
                 }

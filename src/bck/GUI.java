@@ -188,7 +188,11 @@ public class GUI extends javax.swing.JFrame {
             String ip = this.ip_textBox.getText();
             String vrs = this.vers_textBox.getText();
             this.dispose();
-            Backup.backup(mc, mdb, mdr, ip, vrs);
+            try {
+                Backup.backup(mc, mdb, mdr, ip, vrs);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
+            }
             
         } catch (IOException ex) {
             Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);

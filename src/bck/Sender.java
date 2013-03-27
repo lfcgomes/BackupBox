@@ -44,21 +44,23 @@ public class Sender extends Thread {
         System.out.println("Sending: " + Backup.getMapShaFiles().get(this.sha).getName());
         int n = 0;
         HashMap<Integer, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
+        int total = 0;
+        for(int x=0; x<file_to_send_chunks.size();x++)
+            total += file_to_send_chunks.get(x).length;
+        System.out.println("TAMANHO TOTAL: "+total);
+        
         while (file_to_send_chunks.get(n) != null) {
             //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
             String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n
-                    + " " + replication_degree + "\n\n";// + file_to_send_chunks.get(n);
+                    + " " + replication_degree + "\n\n";
             byte[] msg_byte = msg.getBytes();
-            System.out.println("Tamanho msg_byte: "+msg_byte.length);
+            
+           
+            
             byte[] final_msg = new byte[msg_byte.length + file_to_send_chunks.get(n).length];
             System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
             System.arraycopy(file_to_send_chunks.get(n), 0, final_msg, msg_byte.length, file_to_send_chunks.get(n).length);
             
-            String ccc = new String(file_to_send_chunks.get(n));
-            System.out.println("msg size "+msg_byte.length);
-            System.out.println("info size "+file_to_send_chunks.get(n).length);
-            System.out.println("final size "+final_msg.length);
-            //System.out.println("A enviar: "+ccc);
             DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
             byte[] temp = new byte[file_to_send_chunks.get(n).length];
             System.arraycopy(final_msg, msg_byte.length, temp, 0, final_msg.length-msg_byte.length);
