@@ -337,7 +337,8 @@ public class Backup {
 
                     Thread.sleep(10);
                     socket.send(delete_file_packet);
-
+                    
+                    System.out.println("Done!");
                     break;
                 case 4:
                     break;

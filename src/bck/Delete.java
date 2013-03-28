@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileWriter;
+import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
@@ -54,7 +55,7 @@ public class Delete extends Thread {
                     String fileID = unparsed.substring(0, unparsed.indexOf("\n"));
                     
                     //Se restaurou algum chunk daquele ficheiro, vai apagar
-                    if (Backup.getStoredChunks(fileID) != null) {
+                    /*if (Backup.getStoredChunks(fileID) != null) {
                         int n=0;
                         while(!Backup.getStoredChunks(fileID).isEmpty()){
                             System.out.println("Chunk "+Backup.getStoredChunks(fileID).get(n));
@@ -64,7 +65,16 @@ public class Delete extends Thread {
                             Backup.getStoredChunks(fileID).remove(n);
                         }
 
-                    }
+                    }*/
+                    
+                    File dir = new File(".");
+                    File[] foundFiles = dir.listFiles();
+                    
+                    for (File filename : foundFiles) {
+                        if(filename.getName().startsWith(fileID+"_"))
+                            filename.delete();
+                        // Process filename
+                    }    
                 }
             }
         }
