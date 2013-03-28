@@ -140,12 +140,13 @@ public class Backup {
             
         //Utils.readFromFile("configuration.txt");
 
-        //TODO lançar thread RECEIVER para estar à espera de chunks?
 
         Receiver receiver = new Receiver(socket, address, MC, MDB);
         Message message = new Message(socket, address, MC, MDR);
+        Delete deleter = new Delete(socket);
         message.start();
         receiver.start();
+        deleter.start();
 
         int op = 0;
         while (op != 5) {
@@ -301,16 +302,42 @@ public class Backup {
                     System.out.println("Done!");
                     
                     break;
-                case 3:
-                    
-                    FileOutputStream file = new FileOutputStream("nome.pdf");
-                    int m =0;
-                    while(m<teste.get("teste").size()){
-                        file.write(teste.get("teste").get(m));
-                        m++;
+                case 3:         
+                    no_files = false;
+                    while (true) {
+                        if (map_sha_files.isEmpty()) {
+                            System.out.println("No files to delete!\n");
+                            no_files = true;
+                            break;
+                        }
+                        System.out.println("\nChoose a file to delete:");
+                        for (int i = 0; i < files.length; i++) {
+                            if (files[i].isFile()) {
+                                System.out.println(i + 1 + ": " + files[i].getName());
+                            }
+                        }
+                        System.out.print("Option: ");
+                        int file_choice = in.nextInt();
+
+                        try {
+                            backup_f = files[file_choice - 1];
+                            sha = Utils.geraHexFormat(backup_f.getPath());
+                            break;
+                        } catch (Exception ex) {
+                            System.out.println("Invalid choice!");
+                        }
                     }
-                    file.flush();
-                    file.close();
+
+                    if (no_files) {
+                        break;
+                    }
+
+                    String delete_file = "DELETE " + sha + "\n\n";
+                    DatagramPacket delete_file_packet = new DatagramPacket(delete_file.getBytes(), delete_file.length(), address, MC);
+
+                    Thread.sleep(10);
+                    socket.send(delete_file_packet);
+
                     break;
                 case 4:
                     break;
