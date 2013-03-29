@@ -37,23 +37,25 @@ public class Backup {
     private static HashMap<String, HashMap<String, byte[]>> stored_files = new HashMap<String, HashMap<String, byte[]>>();
     private static HashMap<String, ArrayList<String>> restored_chunks = new HashMap<String, ArrayList<String>>();
     private static HashMap<String, FileOutputStream> restored_files = new HashMap<String, FileOutputStream>();
+    private static HashMap<String, HashMap<Integer, byte[]>> teste = new HashMap<String, HashMap<Integer, byte[]>>();
 
-    
-    private static HashMap<String, HashMap<Integer,byte[]>> teste = new HashMap<String, HashMap<Integer,byte[]>>();
-
-    public static HashMap<String, HashMap<Integer,byte[]>> getTeste(){
+    public static HashMap<String, HashMap<Integer, byte[]>> getTeste() {
         return teste;
     }
-    public static int getFileReplicationDegree(String sha){
-        return file_replication_degree.get(sha);}
-    
-    public static ArrayList<String> getReceivedSendedFiles(){
-        return received_sended_files;}
-    
-    public static ArrayList<String> getSendedFiles(){
-        return sended_files;}
-    
-    public static void initiateMissingChunks(String fileID){
+
+    public static int getFileReplicationDegree(String sha) {
+        return file_replication_degree.get(sha);
+    }
+
+    public static ArrayList<String> getReceivedSendedFiles() {
+        return received_sended_files;
+    }
+
+    public static ArrayList<String> getSendedFiles() {
+        return sended_files;
+    }
+
+    public static void initiateMissingChunks(String fileID) {
         missing_chunks.put(fileID, new HashMap<Integer, Integer>());
     }
 
@@ -96,7 +98,7 @@ public class Backup {
     public static HashMap<String, FileOutputStream> getRestoredFiles() {
         return restored_files;
     }
-    
+
     public static HashMap<String, HashMap<String, byte[]>> getStoredFiles() {
         return stored_files;
     }
@@ -114,13 +116,8 @@ public class Backup {
         g.show();
     }
 
+    @SuppressWarnings("SleepWhileInLoop")
     public static void backup(int mc, int mdb, int mdr, String ip, String vrs) throws IOException, NoSuchAlgorithmException, InterruptedException {
-
-        /*
-        int MC = 7777;
-        int MD = 7788;
-        String ip_address = "224.0.2.11";
-         */
 
         int MC = mc;
         int MDB = mdb;
@@ -134,13 +131,6 @@ public class Backup {
         InetAddress address = InetAddress.getByName(ip_address);
         socket.joinGroup(address);
 
-            String picas = "picaslindas";
-            byte[] picas_byte = picas.getBytes();
-            
-            
-        //Utils.readFromFile("configuration.txt");
-
-
         Receiver receiver = new Receiver(socket, address, MC, MDB);
         Message message = new Message(socket, address, MC, MDR);
         Delete deleter = new Delete(socket);
@@ -153,8 +143,8 @@ public class Backup {
 
             menu();
 
-            File[] files = dir.listFiles(); 
-            
+            File[] files = dir.listFiles();
+
             for (int i = 0; i < files.length; i++) {
 
                 HashMap<String, byte[]> temp_chunk = new HashMap<String, byte[]>();
@@ -167,32 +157,27 @@ public class Backup {
                     byte[] dataBytes = new byte[64000];
                     int c = 0;
                     int size, lastsize = 0;
-                    
+
                     while ((size = f.read(dataBytes)) != -1) {	//lê todos os chunks do ficheiro
                         temp_chunk.put(String.valueOf(c), dataBytes);
                         c++;
                         dataBytes = new byte[64000];
                         lastsize = size;
                     }
-
                     if (lastsize % 64000 == 0) {
                         dataBytes = new byte[0];
-                        temp_chunk.put(String.valueOf(c-1), dataBytes);
-                    }
-                    else{
+                        temp_chunk.put(String.valueOf(c - 1), dataBytes);
+                    } else {
                         byte[] last_chunk = new byte[lastsize];
-                        System.arraycopy(temp_chunk.get(String.valueOf(c-1)), 0, last_chunk, 0, lastsize);
-                        temp_chunk.remove(String.valueOf(c-1));
-                        temp_chunk.put(String.valueOf(c-1), last_chunk);
+                        System.arraycopy(temp_chunk.get(String.valueOf(c - 1)), 0, last_chunk, 0, lastsize);
+                        temp_chunk.remove(String.valueOf(c - 1));
+                        temp_chunk.put(String.valueOf(c - 1), last_chunk);
                     }
-                    
+
                     map_sha_files.put(Utils.geraHexFormat(files[i].getPath()), files[i]);
                     map_chunk_files.put(Utils.geraHexFormat(files[i].getPath()), temp_chunk);
                 }
-
             }
-
-
 
             Scanner in = new Scanner(System.in);
             op = in.nextInt();
@@ -200,7 +185,7 @@ public class Backup {
 
             switch (op) {
                 case 1:
-                    File backup_f = null;
+                    File backup_f;
                     boolean no_files = false;
                     while (true) {
 
@@ -280,11 +265,11 @@ public class Backup {
                     /* Ciclo para pedir todos os chunks a restaurar */
                     HashMap<String, byte[]> chunks_to_restore = map_chunk_files.get(sha);
                     int n = 0;
-                    
+
                     System.out.println("Restoring...");
                     Restore restore = new Restore(address, mdr);
                     restore.start();
-                    
+
                     while (chunks_to_restore.size() > n) {
                         //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
                         String getchunk = "GETCHUNK " + getVersion() + " " + sha + " " + n + "\n\n";
@@ -295,14 +280,14 @@ public class Backup {
                         n++;
                         Utils.flag_restoring = 1;
                     }
-                    while(Utils.flag_restoring ==1){
+                    while (Utils.flag_restoring == 1) {
                         System.out.print("");
                     }
-                    
+
                     System.out.println("Done!");
-                    
+
                     break;
-                case 3:         
+                case 3:
                     no_files = false;
                     while (true) {
                         if (map_sha_files.isEmpty()) {
@@ -337,7 +322,7 @@ public class Backup {
 
                     Thread.sleep(10);
                     socket.send(delete_file_packet);
-                    
+
                     System.out.println("Done!");
                     break;
                 case 4:

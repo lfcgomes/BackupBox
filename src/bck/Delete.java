@@ -1,19 +1,10 @@
 package bck;
 
-import bck.Backup;
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileWriter;
-import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.Random;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /* thread que vai receber chunks para backup enviadas pelo sender*/
 public class Delete extends Thread {
@@ -26,6 +17,7 @@ public class Delete extends Thread {
     }
 
     @Override
+    @SuppressWarnings("SleepWhileInLoop")
     public void run() {
         while (true) {
 
@@ -42,39 +34,39 @@ public class Delete extends Thread {
             } catch (Exception ex) {
             }
 
-            if (!local.equals("")){// && !receive_packet.getAddress().getHostName().contains(local)) {
+            if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
 
-              
                 String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
                 String[] data_parsed = data.split(" ");
 
-                if(data_parsed[0].equalsIgnoreCase("DELETE")){
-                    
-                    
+                if (data_parsed[0].equalsIgnoreCase("DELETE")) {
+
                     String unparsed = data_parsed[1];
                     String fileID = unparsed.substring(0, unparsed.indexOf("\n"));
-                    
-                    //Se restaurou algum chunk daquele ficheiro, vai apagar
-                    /*if (Backup.getStoredChunks(fileID) != null) {
-                        int n=0;
-                        while(!Backup.getStoredChunks(fileID).isEmpty()){
-                            System.out.println("Chunk "+Backup.getStoredChunks(fileID).get(n));
-                            File f = new File(fileID+"_"+Backup.getStoredChunks(fileID).get(n));
-                            if(f.exists())
-                                f.delete();
-                            Backup.getStoredChunks(fileID).remove(n);
-                        }
 
-                    }*/
-                    
+                    //Se restaurou algum chunk daquele ficheiro, vai apagar.
+                    //Esta parte funciona apenas em memória
+                    /*if (Backup.getStoredChunks(fileID) != null) {
+                     int n=0;
+                     while(!Backup.getStoredChunks(fileID).isEmpty()){
+                     System.out.println("Chunk "+Backup.getStoredChunks(fileID).get(n));
+                     File f = new File(fileID+"_"+Backup.getStoredChunks(fileID).get(n));
+                     if(f.exists())
+                     f.delete();
+                     Backup.getStoredChunks(fileID).remove(n);
+                     }
+
+                     }*/
+
                     File dir = new File(".");
                     File[] foundFiles = dir.listFiles();
-                    
+
                     for (File filename : foundFiles) {
-                        if(filename.getName().startsWith(fileID+"_"))
+                        if (filename.getName().startsWith(fileID + "_")) {
                             filename.delete();
-                        // Process filename
-                    }    
+                        }
+
+                    }
                 }
             }
         }
