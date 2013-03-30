@@ -1,14 +1,13 @@
 package bck;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -30,6 +29,8 @@ public class Message extends Thread {
         socket_restore.joinGroup(ad);
     }
 
+    @Override
+    @SuppressWarnings("SleepWhileInLoop")
     public void run() {
         int i = 0;
         while (true) {
@@ -148,6 +149,25 @@ public class Message extends Thread {
 
                             }
                         }
+                    }
+                    else{
+                        if (data_parsed[0].equalsIgnoreCase("DELETE")) {
+
+                            String unparsed = data_parsed[1];
+                            String fileID = unparsed.substring(0, unparsed.indexOf("\n"));
+                         
+                            File dir = new File(".");
+                            File[] foundFiles = dir.listFiles();
+
+                            for (File filename : foundFiles) {
+                                if (filename.getName().startsWith(fileID + "_")) {
+                                    filename.delete();
+                                }
+
+                            }
+                            
+                        }
+                        
                     }
                 }
             }

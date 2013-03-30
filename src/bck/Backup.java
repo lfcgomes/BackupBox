@@ -133,10 +133,8 @@ public class Backup {
 
         Receiver receiver = new Receiver(socket, address, MC, MDB);
         Message message = new Message(socket, address, MC, MDR);
-        Delete deleter = new Delete(socket);
         message.start();
         receiver.start();
-        deleter.start();
 
         int op = 0;
         while (op != 5) {

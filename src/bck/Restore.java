@@ -34,7 +34,7 @@ public class Restore extends Thread {
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
             try {
                 //socket.setSoTimeout(2000);
-                Thread.sleep(10);
+                //Thread.sleep(100);
                 socket.receive(receive_packet);
                 local = InetAddress.getLocalHost().getHostName();
 
