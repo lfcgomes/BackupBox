@@ -26,7 +26,7 @@ public class Restore extends Thread {
     @Override
     @SuppressWarnings("SleepWhileInLoop")
     public void run() {
-        while (true) {
+        while (!Utils.should_stop) {
 
             byte[] receive_buffer = new byte[65000];
             String local = "";

@@ -1,7 +1,9 @@
 package bck;
 
+import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
@@ -33,7 +35,7 @@ public class Message extends Thread {
     @SuppressWarnings("SleepWhileInLoop")
     public void run() {
         int i = 0;
-        while (true) {
+        while (!Utils.should_stop) {
             byte[] receive_buffer = new byte[1024];
 
             DatagramPacket receive_packet = new DatagramPacket(receive_buffer, receive_buffer.length);
@@ -56,6 +58,7 @@ public class Message extends Thread {
 
                     String version = data_parsed[1];
                     String fileID = data_parsed[2];
+                    int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
 
                     if (Backup.getVersion().equalsIgnoreCase(version)) {
 
@@ -64,7 +67,7 @@ public class Message extends Thread {
                                 Backup.getReceivedSendedFiles().add(fileID);
                             }
 
-                            int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
+
                             HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
                             missing = Backup.getMissingChunks(fileID);
 
@@ -88,6 +91,21 @@ public class Message extends Thread {
 
                             Backup.getMissingChunks().put(fileID, missing);
                         }
+
+                        //CASO O STORE SEJA DE UM FICHEIRO QUE EU JÁ TENHA RECEBIDO
+                        if (Backup.getStoredChunks(fileID) != null) {
+                            //vou escrever num ficheiro                            
+                            try {
+                                File file = new File(fileID + ".txt");
+                                if (!file.exists()) {
+                                    file.createNewFile();
+                                }
+                                Utils.replace(file.getName(), String.valueOf(chunkNO));
+
+                            } catch (IOException ex) {
+                                Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                            }
+                        }
                     }
                 } else {
                     //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
@@ -97,49 +115,49 @@ public class Message extends Thread {
                         if (Backup.getVersion().equalsIgnoreCase(version)) {
 
                             //Vamos enviar o chunk pedido
-                            
+
                             String fileID = data_parsed[2];
                             String unparsed = data_parsed[3];
                             String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
-                            
+
                             //System.out.println("vamos ver se tenho o chunk");
                             // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
-                            if (Backup.getStoredChunks(fileID).contains(chunkNO)) {                              
-                                
+                            if (Backup.getStoredChunks(fileID).contains(chunkNO)) {
+
                                 RandomAccessFile f = null;
                                 try {
-                                    f = new RandomAccessFile(fileID+"_"+chunkNO, "r");
+                                    f = new RandomAccessFile(fileID + "_" + chunkNO, "r");
                                 } catch (FileNotFoundException ex) {
                                     Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                 }
                                 byte[] chunk = null;
                                 try {
-                                    chunk = new byte[(int)f.length()];
+                                    chunk = new byte[(int) f.length()];
                                     f.read(chunk);
                                 } catch (Exception ex) {
                                     Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                                
-                                
+
+
                                 //System.out.println("SIZE DO CHUNK A ENVIAR: "+chunk.length);
-                                
+
                                 //CHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF><Body>
-                                
+
                                 //Se tenho o chunk, tenho que ir ao ficheiro buscar
-                                String msg = "CHUNK " + Backup.getVersion() + " "+fileID+" " + chunkNO + "\n\n";
-                                
+                                String msg = "CHUNK " + Backup.getVersion() + " " + fileID + " " + chunkNO + "\n\n";
+
                                 byte[] msg_byte = msg.getBytes();
-                                
+
                                 //System.out.println("MESSAGE BYTE "+ msg_byte.length);
                                 byte[] final_msg = new byte[msg_byte.length + chunk.length];
                                 System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
                                 System.arraycopy(chunk, 0, final_msg, msg_byte.length, chunk.length);
 
                                 DatagramPacket chunk_packet = new DatagramPacket(final_msg, final_msg.length, this.address, this.MDR);
-                                
+
                                 //Random randomGenerator = new Random();
                                 //int randomDelay = randomGenerator.nextInt(400);
-                                
+
                                 try {
                                     Thread.sleep(100);
                                     socket_restore.send(chunk_packet);
@@ -149,29 +167,28 @@ public class Message extends Thread {
 
                             }
                         }
-                    }
-                    else{
+                    } else {
                         if (data_parsed[0].equalsIgnoreCase("DELETE")) {
 
                             String unparsed = data_parsed[1];
                             String fileID = unparsed.substring(0, unparsed.indexOf("\n"));
-                            
+
                             File dir = new File(".");
                             File[] foundFiles = dir.listFiles();
 
                             for (File filename : foundFiles) {
                                 if (filename.getName().startsWith(fileID + "_")) {
+                                    Backup.updateDiskSpace((int) -filename.length());
                                     filename.delete();
                                 }
 
                             }
-                            
-                            if(Backup.getStoredChunks(fileID) != null && !Backup.getStoredChunks(fileID).isEmpty()){
+
+                            if (Backup.getStoredChunks(fileID) != null) {// && !Backup.getStoredChunks(fileID).isEmpty()) {
                                 Backup.getStoredChunksMap().remove(fileID);
                             }
-                            
                         }
-                        
+
                     }
                 }
             }

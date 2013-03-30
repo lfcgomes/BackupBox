@@ -2,6 +2,7 @@ package bck;
 
 //classe com funções utilizadas por outras classes
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.DataInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -15,6 +16,8 @@ import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
 import org.w3c.dom.Element;
 import java.io.File;
+import java.io.FileReader;
+import java.io.FileWriter;
 import java.util.ArrayList;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -27,6 +30,7 @@ public class Utils {
     static int flag_sending = 0;
     static int flag_restoring = 0;
     /* */
+    static boolean should_stop = false;
 
     public static String geraHexFormat(String f)
             throws NoSuchAlgorithmException, IOException {
@@ -54,6 +58,56 @@ public class Utils {
         return sb.toString();
     }
 
+    public static void replace(String filename, String chunk_no) {
+      String oldFileName = filename;
+      String tmpFileName = "tmp_"+filename;
+
+      BufferedReader br = null;
+      BufferedWriter bw = null;
+      try {
+         br = new BufferedReader(new FileReader(oldFileName));
+         bw = new BufferedWriter(new FileWriter(tmpFileName));
+         String line;
+         int novo_count=0;
+         while ((line = br.readLine()) != null) {
+            String[] data_parsed = line.split(" ");
+            if (data_parsed[0].equals("chunk"+chunk_no)){
+                
+                String old_count = data_parsed[1].substring(data_parsed[1].indexOf("#")+1); 
+                novo_count = Integer.parseInt(old_count)+1;
+                line = line.replace(data_parsed[1], "#"+novo_count);
+
+            }
+            bw.write(line+"\n");
+         }
+         if(novo_count==0){//se estiver a 0 quer dizer que ainda não estava no ficheiro
+            bw.write("chunk"+chunk_no+" "+"#1"+"\n");
+         }
+      } catch (Exception e) {
+         return;
+      } finally {
+         try {
+            if(br != null)
+               br.close();
+         } catch (IOException e) {
+            //
+         }
+         try {
+            if(bw != null)
+               bw.close();
+         } catch (IOException e) {
+            //
+         }
+      }
+      // Once everything is complete, delete old file..
+      File oldFile = new File(oldFileName);
+      oldFile.delete();
+
+      // And rename tmp file's name to old file name
+      File newFile = new File(tmpFileName);
+      newFile.renameTo(oldFile);
+   }
+    
     public static String readFromFile(String filename, String chunkNO) {
         try {
             // Open the file that is the first 
@@ -67,8 +121,8 @@ public class Utils {
             while ((strLine = br.readLine()) != null) {
                 // Print the content on the console
                 String[] data_parsed = strLine.split(" ");
-                if(data_parsed[1].equalsIgnoreCase(chunkNO))
-                    return data_parsed[0];
+                if(data_parsed[0].equalsIgnoreCase(chunkNO))
+                    return data_parsed[1];
                 
             }
             //Close the input stream

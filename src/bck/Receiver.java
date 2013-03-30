@@ -30,7 +30,7 @@ public class Receiver extends Thread {
 
     @Override
     public void run() {
-        while (true) {
+        while (!Utils.should_stop) {
 
             byte[] receive_buffer = new byte[65000];
             String local = "";
@@ -49,10 +49,10 @@ public class Receiver extends Thread {
                 //TODO: ver o tamanho de "data" até ao index de "\n\n", que é o HEADER
                 //pode ser que seja possível ver o tamanho do header assim, e o resto é o body
                 String data_total = new String(receive_packet.getData(), 0, receive_packet.getLength());
-                
+
                 String HEADER = data_total.split("\n\n")[0];
-                int inicio_body =  HEADER.getBytes().length+2;
-                
+                int inicio_body = HEADER.getBytes().length + 2;
+
                 String[] data_parsed = HEADER.split(" ");
 
                 String version = data_parsed[1];
@@ -66,46 +66,52 @@ public class Receiver extends Thread {
                 //verifica se é o último chunk para o caso de todos serem de 64K
                 if (!isEmptyChunk(info)) {
 
-                    //verifica se o chunk que está a tentar receber é da mesma versão do sistema
-                    if (version.equalsIgnoreCase(Backup.getVersion())) {
+                    //verifica se tem espaço suficiente em disco para guardar
+                    if (Backup.getDiskSpace() - info.length > 0) {
+                        
+                        //verifica se o chunk que está a tentar receber é da mesma versão do sistema
+                        if (version.equalsIgnoreCase(Backup.getVersion())) {
 
-                        //verifica se ja existe uma key criada no mapa para aquele ficheiro
-                        if (!Backup.getStoredChunksMap().containsKey(fileID)) {
-                            Backup.initiateStoredChunk(fileID);
-                        }
-                        //verifica se já armazenou esse chunk
-                        if (!Backup.existChunk(fileID, chunkNO)) {
-
-                            FileOutputStream f;
-                            try {
-                                f = new FileOutputStream(fileID + "_" + chunkNO);
-                                f.write(info);
-                                f.flush();
-                                f.close();
-                            } catch (Exception ex) {
-                                Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                            //verifica se ja existe uma key criada no mapa para aquele ficheiro
+                            if (!Backup.getStoredChunksMap().containsKey(fileID)) {
+                                Backup.initiateStoredChunk(fileID);
                             }
+                            //verifica se já armazenou esse chunk
+                            if (!Backup.existChunk(fileID, chunkNO)) {
 
-                            //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
-                            Backup.getStoredChunks(fileID).add(chunkNO);
+                                FileOutputStream f;
+                                try {
+                                    f = new FileOutputStream(fileID + "_" + chunkNO);
+                                    f.write(info);
+                                    f.flush();
+                                    f.close();
+                                    Backup.updateDiskSpace(info.length);
+  
+                                } catch (Exception ex) {
+                                    Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                }
+                                
+                                //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
+                                Backup.getStoredChunks(fileID).add(chunkNO);
 
-                            //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
+                                //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
 
-                            String msg = "STORED " + version + " " + fileID + " " + chunkNO + "\n\n";
-                            DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
+                                String msg = "STORED " + version + " " + fileID + " " + chunkNO + "\n\n";
+                                DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
 
-                            Random randomGenerator = new Random();
-                            int randomDelay = randomGenerator.nextInt(400);
+                                Random randomGenerator = new Random();
+                                int randomDelay = randomGenerator.nextInt(400);
 
-                            try {
-                                //Thread.sleep(randomDelay);
-                                socket_control.send(chunk_stored);
-                            } catch (Exception ex) {
-                                Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                try {
+                                    //Thread.sleep(randomDelay);
+                                    socket_control.send(chunk_stored);
+                                } catch (Exception ex) {
+                                    Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                }
                             }
                         }
+
                     }
-
                 }
             }
         }

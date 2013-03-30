@@ -8,14 +8,17 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.net.MulticastSocket;
+import java.nio.channels.DatagramChannel;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Backup {
 
     private static String version = "1.0";
+    private static int disk_space = 800000; //substituir por input
     /* HashMaps com info dos ficheiros que eu ENVIO */
     //Guarda o fileID e o ficheiro
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
@@ -30,18 +33,12 @@ public class Backup {
     private static ArrayList<String> received_sended_files = new ArrayList<String>();
     //Guarda o fileID dos ficheiros que tentei enviar para a LAN
     private static ArrayList<String> sended_files = new ArrayList<String>();
-    
     /* HashMaps com info dos ficheiros que eu RECEBO */
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
     private static HashMap<String, ArrayList<String>> stored_chunks = new HashMap<String, ArrayList<String>>();
     private static HashMap<String, ArrayList<String>> restored_chunks = new HashMap<String, ArrayList<String>>();
     private static HashMap<String, FileOutputStream> restored_files = new HashMap<String, FileOutputStream>();
-    private static HashMap<String, HashMap<Integer, byte[]>> teste = new HashMap<String, HashMap<Integer, byte[]>>();
-
-    public static HashMap<String, HashMap<Integer, byte[]>> getTeste() {
-        return teste;
-    }
 
     public static int getFileReplicationDegree(String sha) {
         return file_replication_degree.get(sha);
@@ -105,6 +102,14 @@ public class Backup {
 
     public static String getVersion() {
         return version;
+    }
+
+    public static int getDiskSpace() {
+        return disk_space;
+    }
+
+    public static void updateDiskSpace(int chunk_size) {
+        disk_space -= chunk_size;
     }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
@@ -194,8 +199,14 @@ public class Backup {
                                 System.out.println(i + 1 + ": " + files[i].getName());
                             }
                         }
+                        System.out.println("0: Back");
                         System.out.print("Option: ");
                         int file_choice = in.nextInt();
+
+                        if (file_choice == 0) {
+                            no_files = true;
+                            break;
+                        }
 
                         try {
                             backup_f = files[file_choice - 1];
@@ -228,11 +239,11 @@ public class Backup {
                     while (Utils.flag_sending == 1) {
                         System.out.print("");
                     }
-                    if(Utils.flag_sending == 0)
+                    if (Utils.flag_sending == 0) {
                         System.out.println("File sent to the LAN\n");
-                    else
-                        if(Utils.flag_sending == 2)
-                            System.out.println("Replication degree below expected! Please try again.\n");
+                    } else if (Utils.flag_sending == 2) {
+                        System.out.println("Replication degree below expected! Please try again.\n");
+                    }
                     break;
                 case 2:
                     no_files = false;
@@ -246,15 +257,20 @@ public class Backup {
                         System.out.println("\nChoose a file to restore:");
                         for (int i = 0; i < received_sended_files.size(); i++) {
                             if (map_sha_files.get(received_sended_files.get(i)) != null) {
-                                System.out.println(i + 1 + ": " + map_sha_files.get(received_sended_files.get(i)).getName());
+                                System.out.println((i + 1) + ": " + map_sha_files.get(received_sended_files.get(i)).getName());
                             }
                         }
+                        System.out.println("0: Back");
                         System.out.print("Option: ");
                         int file_choice = in.nextInt();
 
+                        if (file_choice == 0) {
+                            no_files = true;
+                            break;
+                        }
+
                         try {
-                            backup_f = files[file_choice - 1];
-                            sha = Utils.geraHexFormat(backup_f.getPath());
+                            sha = received_sended_files.get(file_choice - 1);
                             break;
                         } catch (Exception ex) {
                             System.out.println("Invalid choice!\n");
@@ -304,8 +320,14 @@ public class Backup {
                                 System.out.println(i + 1 + ": " + files[i].getName());
                             }
                         }
+                        System.out.println("0: Back");
                         System.out.print("Option: ");
                         int file_choice = in.nextInt();
+
+                        if (file_choice == 0) {
+                            no_files = true;
+                            break;
+                        }
 
                         try {
                             backup_f = files[file_choice - 1];
@@ -327,14 +349,54 @@ public class Backup {
                     socket.send(delete_file_packet);
 
                     System.out.println("Done!");
-                    if(getReceivedSendedFiles().contains(sha))
+                    if (getReceivedSendedFiles().contains(sha)) {
                         getReceivedSendedFiles().remove(sha);
-                    
+                    }
+
                     break;
                 case 4:
+                    System.out.println("Are you sure you want to delete all the backed up chunks?");
+                    String yes_no = "";
+                    while (true) {
+                        System.out.print("(yes/no): ");
+                        yes_no = in.next();
+                        if (yes_no.equalsIgnoreCase("yes") || yes_no.equalsIgnoreCase("no")) {
+                            break;
+                        }
+                    }
+
+                    if (yes_no.equalsIgnoreCase("no")) {
+                        break;
+                    }
+
+                    Set<String> stored_filenames = getStoredChunksMap().keySet();
+                    
+                    File chunks_dir = new File(".");
+                    File[] foundFiles = chunks_dir.listFiles();
+
+                    for (String fileID : stored_filenames) {
+
+                        for (File filename : foundFiles) {
+                            if (filename.getName().startsWith(fileID + "_")) {
+                                //encontrou o ficheiro, vai apagá-lo e enviar REMOVED do chunk respectivo
+                                filename.delete();
+                                Backup.updateDiskSpace((int) -filename.length());
+
+                                String chunk_no = filename.getName().substring(filename.getName().indexOf("_") + 1);
+                                String msg = "REMOVED " + getVersion() + " " + fileID + " " + chunk_no + "\n\n";
+
+                                DatagramPacket removed_packet = new DatagramPacket(msg.getBytes(), msg.length(), address, MC);
+
+                                Thread.sleep(10);
+                                socket.send(removed_packet);
+                            }
+                        }
+                        Backup.getStoredChunksMap().remove(fileID);
+                    }
                     break;
                 case 5:
                     System.out.println("Goodbye!");
+                    Utils.should_stop = true;
                     break;
                 default:
                     System.out.println("Invalid option!");
