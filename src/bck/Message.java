@@ -155,7 +155,7 @@ public class Message extends Thread {
 
                             String unparsed = data_parsed[1];
                             String fileID = unparsed.substring(0, unparsed.indexOf("\n"));
-                         
+                            
                             File dir = new File(".");
                             File[] foundFiles = dir.listFiles();
 
@@ -164,6 +164,10 @@ public class Message extends Thread {
                                     filename.delete();
                                 }
 
+                            }
+                            
+                            if(Backup.getStoredChunks(fileID) != null && !Backup.getStoredChunks(fileID).isEmpty()){
+                                Backup.getStoredChunksMap().remove(fileID);
                             }
                             
                         }

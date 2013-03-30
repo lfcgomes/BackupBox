@@ -44,18 +44,19 @@ public class Restore extends Thread {
 
             if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
 
-                //TODO: ver o tamanho de "data" até ao index de "\n\n", que é o HEADER
-                //pode ser que seja possível ver o tamanho do header assim, e o resto é o body
                 String data = new String(receive_packet.getData(), 0, receive_packet.getLength());
-                String[] data_parsed = data.split(" ");
-
+                
+                String HEADER = data.split("\n\n")[0];
+                int inicio_body =  HEADER.getBytes().length+2;
+                
+                String[] data_parsed = HEADER.split(" ");
+                
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
-                String unparsed = data_parsed[3];
-                String chunkNO = unparsed.substring(0, unparsed.indexOf("\n"));
+                String chunkNO = data_parsed[3];
 
                 byte[] info = new byte[Backup.getMapChunkFiles().get(fileID).get(chunkNO).length];
-                System.arraycopy(receive_buffer, 78, info, 0, Backup.getMapChunkFiles().get(fileID).get(chunkNO).length);
+                System.arraycopy(receive_buffer, inicio_body, info, 0, Backup.getMapChunkFiles().get(fileID).get(chunkNO).length);
 
                 //verifica se o chunk que está a tentar receber é da mesma versão do sistema
                 if (version.equalsIgnoreCase(Backup.getVersion())) {

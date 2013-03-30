@@ -46,8 +46,14 @@ public class Receiver extends Thread {
 
             if (!local.equals("") && !receive_packet.getAddress().getHostName().contains(local)) {
 
-                String data = new String(receive_packet.getData(), 0, 83);
-                String[] data_parsed = data.split(" ");
+                //TODO: ver o tamanho de "data" até ao index de "\n\n", que é o HEADER
+                //pode ser que seja possível ver o tamanho do header assim, e o resto é o body
+                String data_total = new String(receive_packet.getData(), 0, receive_packet.getLength());
+                
+                String HEADER = data_total.split("\n\n")[0];
+                int inicio_body =  HEADER.getBytes().length+2;
+                
+                String[] data_parsed = HEADER.split(" ");
 
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
@@ -55,7 +61,7 @@ public class Receiver extends Thread {
 
                 byte[] info = new byte[64000];
 
-                System.arraycopy(receive_buffer, 83, info, 0, 64000);
+                System.arraycopy(receive_buffer, inicio_body, info, 0, 64000);
 
                 //verifica se é o último chunk para o caso de todos serem de 64K
                 if (!isEmptyChunk(info)) {

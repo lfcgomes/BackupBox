@@ -30,11 +30,11 @@ public class Backup {
     private static ArrayList<String> received_sended_files = new ArrayList<String>();
     //Guarda o fileID dos ficheiros que tentei enviar para a LAN
     private static ArrayList<String> sended_files = new ArrayList<String>();
+    
     /* HashMaps com info dos ficheiros que eu RECEBO */
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
     private static HashMap<String, ArrayList<String>> stored_chunks = new HashMap<String, ArrayList<String>>();
-    private static HashMap<String, HashMap<String, byte[]>> stored_files = new HashMap<String, HashMap<String, byte[]>>();
     private static HashMap<String, ArrayList<String>> restored_chunks = new HashMap<String, ArrayList<String>>();
     private static HashMap<String, FileOutputStream> restored_files = new HashMap<String, FileOutputStream>();
     private static HashMap<String, HashMap<Integer, byte[]>> teste = new HashMap<String, HashMap<Integer, byte[]>>();
@@ -97,10 +97,6 @@ public class Backup {
 
     public static HashMap<String, FileOutputStream> getRestoredFiles() {
         return restored_files;
-    }
-
-    public static HashMap<String, HashMap<String, byte[]>> getStoredFiles() {
-        return stored_files;
     }
 
     public static HashMap<String, HashMap<String, byte[]>> getMapChunkFiles() {
@@ -235,6 +231,7 @@ public class Backup {
                     System.out.println("File sent to the LAN");
                     break;
                 case 2:
+                    no_files = false;
                     while (true) {
 
                         if (received_sended_files.isEmpty()) {
@@ -258,6 +255,10 @@ public class Backup {
                         } catch (Exception ex) {
                             System.out.println("Invalid choice!");
                         }
+                    }
+
+                    if (no_files) {
+                        break;
                     }
 
                     /* Ciclo para pedir todos os chunks a restaurar */
@@ -322,6 +323,9 @@ public class Backup {
                     socket.send(delete_file_packet);
 
                     System.out.println("Done!");
+                    if(getReceivedSendedFiles().contains(sha))
+                        getReceivedSendedFiles().remove(sha);
+                    
                     break;
                 case 4:
                     break;
