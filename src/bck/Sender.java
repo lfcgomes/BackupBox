@@ -37,37 +37,53 @@ public class Sender extends Thread {
 
         System.out.println("Sending...");
         int n = 0;
-        HashMap<String, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
+        int retransmit = 0;
+        int time_interval_double = 1;
+        
+        while(retransmit < 5){
+            
+            HashMap<String, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
+            n = 0;
+            
+            while (file_to_send_chunks.get(String.valueOf(n)) != null) {
+                
+                String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n
+                        + " " + replication_degree + "\n\n";
+                byte[] msg_byte = msg.getBytes();
+                byte[] final_msg = new byte[msg_byte.length + file_to_send_chunks.get(String.valueOf(n)).length];
+                System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
+                System.arraycopy(file_to_send_chunks.get(String.valueOf(n)), 0, final_msg, msg_byte.length, file_to_send_chunks.get(String.valueOf(n)).length);
 
-        while (file_to_send_chunks.get(String.valueOf(n)) != null) {
-            //PUTCHUNK <Version> <FileId> <ChunkNo> <ReplicationDeg><CRLF><CRLF><Body>
-            String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n
-                    + " " + replication_degree + "\n\n";
-            byte[] msg_byte = msg.getBytes();
-            byte[] final_msg = new byte[msg_byte.length + file_to_send_chunks.get(String.valueOf(n)).length];
-            System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
-            System.arraycopy(file_to_send_chunks.get(String.valueOf(n)), 0, final_msg, msg_byte.length, file_to_send_chunks.get(String.valueOf(n)).length);
+                DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
 
-            DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
-
+                try {
+                    Thread.sleep(100);
+                    socket.send(chunk);
+                    Backup.getMissingChunks(sha).put(n, replication_degree);
+                } catch (Exception ex) {
+                    Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+                }
+                n++;
+            }
+            
             try {
-                Thread.sleep(100);
-                socket.send(chunk);
-                Backup.getMissingChunks(sha).put(n, replication_degree);
-            } catch (Exception ex) {
+                Thread.sleep(500 * time_interval_double);
+            } catch (InterruptedException ex) {
                 Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
             }
-            n++;
-        }
 
-        try {
-            Thread.sleep(10);
-        } catch (InterruptedException ex) {
-            Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
-        }
-
-        if (!Backup.getMissingChunks(sha).isEmpty());
-        System.out.print("Tentando enviar chunks em falta... ");
-        Utils.flag_sending = 0;
+            if (!Backup.getMissingChunks(sha).isEmpty()){
+                retransmit++;
+                time_interval_double *= 2;
+                System.out.println("Trying to send missing chunks... try#"+retransmit);
+                
+                if(retransmit == 5)
+                    Utils.flag_sending = 2;
+            }
+            else{
+                Utils.flag_sending = 0;
+                break;
+            }
+        } 
     }
 }

@@ -228,7 +228,11 @@ public class Backup {
                     while (Utils.flag_sending == 1) {
                         System.out.print("");
                     }
-                    System.out.println("File sent to the LAN");
+                    if(Utils.flag_sending == 0)
+                        System.out.println("File sent to the LAN\n");
+                    else
+                        if(Utils.flag_sending == 2)
+                            System.out.println("Replication degree below expected! Please try again.\n");
                     break;
                 case 2:
                     no_files = false;
@@ -253,7 +257,7 @@ public class Backup {
                             sha = Utils.geraHexFormat(backup_f.getPath());
                             break;
                         } catch (Exception ex) {
-                            System.out.println("Invalid choice!");
+                            System.out.println("Invalid choice!\n");
                         }
                     }
 
