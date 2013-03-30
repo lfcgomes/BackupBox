@@ -58,7 +58,12 @@ public class Receiver extends Thread {
                 String version = data_parsed[1];
                 String fileID = data_parsed[2];
                 String chunkNO = data_parsed[3];
-
+                String replication_degree = data_parsed[4];
+                
+                if(Backup.getStoredFileMinimumDegree().get(fileID) == null){
+                     Backup.getStoredFileMinimumDegree().put(fileID, replication_degree);
+                }
+                
                 byte[] info = new byte[64000];
 
                 System.arraycopy(receive_buffer, inicio_body, info, 0, 64000);

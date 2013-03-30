@@ -1,9 +1,7 @@
 package bck;
 
-import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.net.DatagramPacket;
@@ -20,15 +18,19 @@ public class Message extends Thread {
     InetAddress address = null;
     int MC;
     int MDR;
+    int MDB;
     MulticastSocket socket_restore = null;
-
-    public Message(MulticastSocket s, InetAddress ad, int p, int mdr) throws IOException {
+    MulticastSocket socket_retransmit = null;
+    
+    public Message(MulticastSocket s, InetAddress ad, int p, int mdr, int mdb) throws IOException {
         socket = s;
         address = ad;
         MC = p;
         MDR = mdr;
+        MDB = mdb;
         socket_restore = new MulticastSocket(MDR);
         socket_restore.joinGroup(ad);
+        socket_retransmit = new MulticastSocket(MDB);
     }
 
     @Override
@@ -100,7 +102,7 @@ public class Message extends Thread {
                                 if (!file.exists()) {
                                     file.createNewFile();
                                 }
-                                Utils.replace(file.getName(), String.valueOf(chunkNO));
+                                Utils.replace(file.getName(), String.valueOf(chunkNO), "PLUS");
 
                             } catch (IOException ex) {
                                 Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
@@ -187,12 +189,78 @@ public class Message extends Thread {
                             if (Backup.getStoredChunks(fileID) != null) {// && !Backup.getStoredChunks(fileID).isEmpty()) {
                                 Backup.getStoredChunksMap().remove(fileID);
                             }
-                        }
+                        } else {
+                            if (data_parsed[0].equalsIgnoreCase("REMOVED")) {
 
+                                String version = data_parsed[1];
+                                String fileID = data_parsed[2];
+                                String chunk_no = data_parsed[3].substring(0, data_parsed[3].indexOf("\n"));
+
+                                if (Backup.getVersion().equals(version)) {
+
+                                    //já guardei este ficheiro
+                                    if (Backup.getStoredChunks(fileID) != null) {
+                                        //vou escrever num ficheiro                            
+                                        try {
+                                            File file = new File(fileID + ".txt");
+                                            int new_degree = 0;
+                                            if (file.exists()) {
+                                                new_degree=Utils.replace(file.getName(), String.valueOf(chunk_no), "MINUS");
+                                            }
+                                            
+                                            //verificar se o degree ficou abaixo do esperado. 
+                                            //(+1 porque no ficheiro não está a escrever o dele próprio)
+                                            /*if(Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) < new_degree+1){
+                
+                                                //lançar um putchunk para este chunk
+                                                String msg = "PUTCHUNK " + Backup.getVersion() + " " + fileID + " " + chunk_no
+                                                        + " " + Backup.getStoredFileMinimumDegree().get(fileID) + "\n\n";
+                                                byte[] msg_byte = msg.getBytes();
+                                                
+                                                byte[] final_msg = new byte[msg_byte.length + 64000];
+                                                System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
+                                                
+                                                //reading the content of the chunk
+                                                RandomAccessFile f = null;
+                                                try {
+                                                    f = new RandomAccessFile(fileID + "_" + chunk_no, "r");
+                                                } catch (FileNotFoundException ex) {
+                                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+                                                byte[] chunk = null;
+                                                try {
+                                                    chunk = new byte[(int) f.length()];
+                                                    f.read(chunk);
+                                                } catch (Exception ex) {
+                                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+                                                
+                                                System.arraycopy(chunk, 0, final_msg, msg_byte.length, chunk.length);
+
+                                                DatagramPacket re_chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MDB);
+
+                                                try {
+                                                    System.out.println("Retransmitting chunk...");
+                                                    Thread.sleep(100);
+                                                    socket_retransmit.send(re_chunk);
+               
+                                                } catch (Exception ex) {
+                                                    Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+
+                                                
+                                            }*/
+                                            
+                                        } catch (Exception ex) {
+                                            Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
-
     }
 }

@@ -19,8 +19,6 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.util.ArrayList;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.xml.parsers.ParserConfigurationException;
 import org.xml.sax.SAXException;
 import org.xml.sax.SAXParseException;
@@ -58,23 +56,28 @@ public class Utils {
         return sb.toString();
     }
 
-    public static void replace(String filename, String chunk_no) {
+    public static int replace(String filename, String chunk_no, String operation) {
       String oldFileName = filename;
       String tmpFileName = "tmp_"+filename;
 
       BufferedReader br = null;
       BufferedWriter bw = null;
+      int novo_count=0;
       try {
          br = new BufferedReader(new FileReader(oldFileName));
          bw = new BufferedWriter(new FileWriter(tmpFileName));
          String line;
-         int novo_count=0;
+         
          while ((line = br.readLine()) != null) {
             String[] data_parsed = line.split(" ");
             if (data_parsed[0].equals("chunk"+chunk_no)){
                 
                 String old_count = data_parsed[1].substring(data_parsed[1].indexOf("#")+1); 
-                novo_count = Integer.parseInt(old_count)+1;
+                if(operation.equalsIgnoreCase("PLUS"))
+                    novo_count = Integer.parseInt(old_count)+1;
+                else{
+                    novo_count = Integer.parseInt(old_count)-1;
+                }
                 line = line.replace(data_parsed[1], "#"+novo_count);
 
             }
@@ -84,7 +87,7 @@ public class Utils {
             bw.write("chunk"+chunk_no+" "+"#1"+"\n");
          }
       } catch (Exception e) {
-         return;
+         return -1;
       } finally {
          try {
             if(br != null)
@@ -106,6 +109,8 @@ public class Utils {
       // And rename tmp file's name to old file name
       File newFile = new File(tmpFileName);
       newFile.renameTo(oldFile);
+      
+      return novo_count;
    }
     
     public static String readFromFile(String filename, String chunkNO) {

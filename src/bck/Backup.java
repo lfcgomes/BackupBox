@@ -37,6 +37,7 @@ public class Backup {
     //Guarda o fileID e a lista com o número de chunks que já foram armazenados por mim
     //Serve para ir ver se tenho esse chunk, antes de o ir buscar ao ficheiro
     private static HashMap<String, ArrayList<String>> stored_chunks = new HashMap<String, ArrayList<String>>();
+    private static HashMap<String, String> stored_file_minimum_degree = new HashMap<String,String>();
     private static HashMap<String, ArrayList<String>> restored_chunks = new HashMap<String, ArrayList<String>>();
     private static HashMap<String, FileOutputStream> restored_files = new HashMap<String, FileOutputStream>();
 
@@ -111,6 +112,10 @@ public class Backup {
     public static void updateDiskSpace(int chunk_size) {
         disk_space -= chunk_size;
     }
+    
+    public static HashMap<String,String> getStoredFileMinimumDegree(){
+        return stored_file_minimum_degree;
+    }
 
     public static void main(String[] args) throws IOException, NoSuchAlgorithmException {
         GUI g = new GUI();
@@ -133,7 +138,7 @@ public class Backup {
         socket.joinGroup(address);
 
         Receiver receiver = new Receiver(socket, address, MC, MDB);
-        Message message = new Message(socket, address, MC, MDR);
+        Message message = new Message(socket, address, MC, MDR, MDB);
         message.start();
         receiver.start();
 
