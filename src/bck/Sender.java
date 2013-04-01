@@ -63,6 +63,8 @@ public class Sender extends Thread {
                 try {
                     Thread.sleep(100);
                     socket.send(chunk);
+                    if(delete)
+                        Backup.getMapChunkFiles().get(sha).remove(n);
                     Backup.getMissingChunks(sha).put(n, replication_degree);
                 } catch (Exception ex) {
                     Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
@@ -89,7 +91,6 @@ public class Sender extends Thread {
                 break;
             }
         }
-        if(delete)
-            Backup.getMapChunkFiles().remove(sha);
+        
     }
 }
