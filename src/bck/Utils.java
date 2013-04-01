@@ -171,8 +171,6 @@ public class Utils {
                     Element ipElement = (Element) ipList.item(0);
 
                     NodeList textIPList = ipElement.getChildNodes();
-                    //System.out.println("IP : "
-                      //      + ((Node) textIPList.item(0)).getNodeValue().trim());
                     results.add(((Node) textIPList.item(0)).getNodeValue().trim());
 
                     //-------
@@ -180,8 +178,6 @@ public class Utils {
                     Element mcElement = (Element) mcList.item(0);
 
                     NodeList textMCList = mcElement.getChildNodes();
-                    //System.out.println("MC : "
-                      //      + ((Node) textMCList.item(0)).getNodeValue().trim());
                     results.add(((Node) textMCList.item(0)).getNodeValue().trim());
 
                     //----
@@ -189,8 +185,6 @@ public class Utils {
                     Element mdElement = (Element) mdList.item(0);
 
                     NodeList textMDList = mdElement.getChildNodes();
-                    //System.out.println("MDBackup : "
-                      //      + ((Node) textMDList.item(0)).getNodeValue().trim());
                     results.add(((Node) textMDList.item(0)).getNodeValue().trim());
 
                     //------
@@ -198,8 +192,6 @@ public class Utils {
                     Element mdResElement = (Element) mdRestoreList.item(0);
 
                     NodeList textMDRList = mdResElement.getChildNodes();
-                    //System.out.println("MDRestore : "
-                        //    + ((Node) textMDRList.item(0)).getNodeValue().trim());
                     results.add(((Node) textMDRList.item(0)).getNodeValue().trim());
 
                     //------
@@ -207,9 +199,14 @@ public class Utils {
                     Element versionElement = (Element) versionList.item(0);
 
                     NodeList textVersionList = versionElement.getChildNodes();
-                    //System.out.println("Version : "
-                      //      + ((Node) textVersionList.item(0)).getNodeValue().trim());
                     results.add(((Node) textVersionList.item(0)).getNodeValue().trim());
+                    
+                    //-------
+                    NodeList storageList = firstSettingsElement.getElementsByTagName("Storage");
+                    Element storageElement = (Element) storageList.item(0);
+
+                    NodeList storageVersionList = storageElement.getChildNodes();
+                    results.add(((Node) storageVersionList.item(0)).getNodeValue().trim());
 
                 }//end of if clause
 

@@ -11,4 +11,5 @@ and open the template in the editor.
         <MDBackup>7788</MDBackup>
         <MDRestore>7799</MDRestore>
         <Version>1.0</Version>
+        <Storage>800000</Storage>
 </Settings>

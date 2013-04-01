@@ -18,7 +18,7 @@ import java.util.Set;
 public class Backup {
 
     private static String version = "1.0";
-    private static int disk_space = 800000; //substituir por input
+    private static int disk_space; //substituir por input
     /* HashMaps com info dos ficheiros que eu ENVIO */
     //Guarda o fileID e o ficheiro
     private static HashMap<String, File> map_sha_files = new HashMap<String, File>();
@@ -123,7 +123,7 @@ public class Backup {
     }
 
     @SuppressWarnings("SleepWhileInLoop")
-    public static void backup(int mc, int mdb, int mdr, String ip, String vrs) throws IOException, NoSuchAlgorithmException, InterruptedException {
+    public static void backup(int mc, int mdb, int mdr, String ip, String vrs, int DiskSpace) throws IOException, NoSuchAlgorithmException, InterruptedException {
 
         int MC = mc;
         int MDB = mdb;
@@ -131,6 +131,7 @@ public class Backup {
         String ip_address = ip;
         Backup.version = vrs;
         MulticastSocket socket = new MulticastSocket(MC);
+        disk_space = DiskSpace;
 
         File dir = new File("files"); //substituir com directorio do ficheiro de configuracao
 

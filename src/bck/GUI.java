@@ -40,7 +40,6 @@ public class GUI extends javax.swing.JFrame {
         jSpinner1 = new javax.swing.JSpinner();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel3 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         ip_textBox = new javax.swing.JTextField();
         pc_textBox = new javax.swing.JTextField();
@@ -49,11 +48,13 @@ public class GUI extends javax.swing.JFrame {
         conf_button = new javax.swing.JButton();
         jLabel5 = new javax.swing.JLabel();
         pdb_textBox = new javax.swing.JTextField();
+        jLabel6 = new javax.swing.JLabel();
+        jLabel7 = new javax.swing.JLabel();
+        disk_space_textBox = new javax.swing.JTextField();
         jMenuBar2 = new javax.swing.JMenuBar();
         redExternal_submenu = new javax.swing.JMenu();
-        exit_submenu = new javax.swing.JMenuItem();
         jMenuItem1 = new javax.swing.JMenuItem();
-        jMenu4 = new javax.swing.JMenu();
+        exit_submenu = new javax.swing.JMenuItem();
 
         jMenu1.setText("File");
         jMenuBar1.add(jMenu1);
@@ -63,13 +64,11 @@ public class GUI extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jLabel1.setText("Endereço IP");
+        jLabel1.setText("IP Address");
 
-        jLabel2.setText("Porto de controlo");
+        jLabel2.setText("Control Port");
 
-        jLabel3.setText("Porto de dados (Restore)");
-
-        jLabel4.setText("Versão de software");
+        jLabel4.setText("Software version");
 
         pdr_textBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -77,24 +76,32 @@ public class GUI extends javax.swing.JFrame {
             }
         });
 
-        conf_button.setText("Confirmar");
+        vers_textBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                vers_textBoxActionPerformed(evt);
+            }
+        });
+
+        conf_button.setText("Confirm");
         conf_button.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 conf_buttonActionPerformed(evt);
             }
         });
 
-        jLabel5.setText("Porto de dados (Backup)");
+        jLabel5.setText("Data Port (Backup)");
 
-        redExternal_submenu.setText("File");
+        jLabel6.setText("Disk Space (bytes)");
 
-        exit_submenu.setText("Exit");
-        exit_submenu.addActionListener(new java.awt.event.ActionListener() {
+        jLabel7.setText("Data Port (Restore)");
+
+        disk_space_textBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                exit_submenuActionPerformed(evt);
+                disk_space_textBoxActionPerformed(evt);
             }
         });
-        redExternal_submenu.add(exit_submenu);
+
+        redExternal_submenu.setText("File");
 
         jMenuItem1.setText("Read from file...");
         jMenuItem1.addActionListener(new java.awt.event.ActionListener() {
@@ -104,10 +111,15 @@ public class GUI extends javax.swing.JFrame {
         });
         redExternal_submenu.add(jMenuItem1);
 
-        jMenuBar2.add(redExternal_submenu);
+        exit_submenu.setText("Exit");
+        exit_submenu.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                exit_submenuActionPerformed(evt);
+            }
+        });
+        redExternal_submenu.add(exit_submenu);
 
-        jMenu4.setText("Edit");
-        jMenuBar2.add(jMenu4);
+        jMenuBar2.add(redExternal_submenu);
 
         setJMenuBar(jMenuBar2);
 
@@ -116,33 +128,38 @@ public class GUI extends javax.swing.JFrame {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addGroup(layout.createSequentialGroup()
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel5)
-                            .addComponent(jLabel2)
-                            .addComponent(jLabel1))
-                        .addGap(26, 26, 26)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(ip_textBox)
-                            .addComponent(pc_textBox)
-                            .addComponent(pdb_textBox)))
-                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addGroup(layout.createSequentialGroup()
-                                .addGap(6, 6, 6)
-                                .addComponent(jLabel3))
-                            .addComponent(jLabel4))
-                        .addGap(18, 18, 18)
-                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(vers_textBox)
-                            .addComponent(pdr_textBox))))
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel5)
+                                    .addComponent(jLabel2)
+                                    .addComponent(jLabel1))
+                                .addGap(26, 26, 26)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(ip_textBox, javax.swing.GroupLayout.DEFAULT_SIZE, 289, Short.MAX_VALUE)
+                                    .addComponent(pc_textBox)
+                                    .addComponent(pdb_textBox)))
+                            .addGroup(layout.createSequentialGroup()
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(jLabel4)
+                                    .addComponent(jLabel7))
+                                .addGap(24, 24, 24)
+                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addComponent(disk_space_textBox)
+                                    .addComponent(pdr_textBox)
+                                    .addComponent(vers_textBox)))))
+                    .addGroup(layout.createSequentialGroup()
+                        .addContainerGap()
+                        .addComponent(jLabel6)
+                        .addGap(0, 0, Short.MAX_VALUE)))
                 .addContainerGap())
             .addGroup(layout.createSequentialGroup()
-                .addGap(147, 147, 147)
+                .addGap(148, 148, 148)
                 .addComponent(conf_button)
-                .addContainerGap(238, Short.MAX_VALUE))
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
@@ -162,14 +179,18 @@ public class GUI extends javax.swing.JFrame {
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(pdr_textBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jLabel3))
+                    .addComponent(jLabel7))
                 .addGap(18, 18, 18)
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel4)
-                    .addComponent(vers_textBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jLabel6)
+                    .addComponent(disk_space_textBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                .addGap(18, 18, 18)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(vers_textBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(jLabel4))
                 .addGap(18, 18, 18)
                 .addComponent(conf_button)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(34, Short.MAX_VALUE))
         );
 
         pack();
@@ -185,11 +206,12 @@ public class GUI extends javax.swing.JFrame {
             int mc = Integer.parseInt(this.pc_textBox.getText());
             int mdb = Integer.parseInt(this.pdb_textBox.getText());
             int mdr = Integer.parseInt(this.pdr_textBox.getText());
+            int space = Integer.parseInt(this.disk_space_textBox.getText());
             String ip = this.ip_textBox.getText();
             String vrs = this.vers_textBox.getText();
             this.dispose();
             try {
-                Backup.backup(mc, mdb, mdr, ip, vrs);
+                Backup.backup(mc, mdb, mdr, ip, vrs, space);
             } catch (InterruptedException ex) {
                 Logger.getLogger(GUI.class.getName()).log(Level.SEVERE, null, ex);
             }
@@ -210,12 +232,14 @@ public class GUI extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             ArrayList<String> results = Utils.xmlParser("settings.xml");
+            System.out.println(results);
             //IP MC MDB MDR VERSION
             this.ip_textBox.setText(results.get(0));
             this.pc_textBox.setText(results.get(1));
             this.pdb_textBox.setText(results.get(2));
             this.pdr_textBox.setText(results.get(3));
             this.vers_textBox.setText(results.get(4));
+            this.disk_space_textBox.setText(results.get(5));
             
             
         } catch (ParserConfigurationException ex) {
@@ -223,6 +247,14 @@ public class GUI extends javax.swing.JFrame {
         }
         
     }//GEN-LAST:event_jMenuItem1ActionPerformed
+
+    private void vers_textBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_vers_textBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_vers_textBoxActionPerformed
+
+    private void disk_space_textBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_disk_space_textBoxActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_disk_space_textBoxActionPerformed
 
     /**
      * @param args the command line arguments
@@ -260,16 +292,17 @@ public class GUI extends javax.swing.JFrame {
     }
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton conf_button;
+    private javax.swing.JTextField disk_space_textBox;
     private javax.swing.JMenuItem exit_submenu;
     private javax.swing.JTextField ip_textBox;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel5;
+    private javax.swing.JLabel jLabel6;
+    private javax.swing.JLabel jLabel7;
     private javax.swing.JMenu jMenu1;
     private javax.swing.JMenu jMenu2;
-    private javax.swing.JMenu jMenu4;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JMenuBar jMenuBar2;
     private javax.swing.JMenuItem jMenuItem1;
