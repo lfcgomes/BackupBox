@@ -240,9 +240,11 @@ public class Message extends Thread {
                                                     Backup.getMapChunkFiles().put(fileID, hash_aux);
                                                     aux_delete = true;
                                                 }
+                                                Backup.initiateMissingChunks(fileID);
+                                                
                                                 Sender sender = new Sender(address, MC, MDB, fileID, 1, false);
                                                 sender.start();
-
+                                                
 
                                             }
                                             

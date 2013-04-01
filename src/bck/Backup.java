@@ -392,7 +392,7 @@ public class Backup {
 
                                 DatagramPacket removed_packet = new DatagramPacket(msg.getBytes(), msg.length(), address, MC);
 
-                                Thread.sleep(10);
+                                Thread.sleep(100);
                                 socket.send(removed_packet);
                             }
                         }
