@@ -149,13 +149,10 @@ public class Utils {
 
             // normalize text representation
             doc.getDocumentElement().normalize();
-            System.out.println("Root element of the doc is "
-                    + doc.getDocumentElement().getNodeName());
 
 
             NodeList listOfSettings = doc.getElementsByTagName("Settings");
             int totalSettings = listOfSettings.getLength();
-            System.out.println("Total no of settings : " + totalSettings);
 
             for (int s = 0; s < listOfSettings.getLength(); s++) {
 
