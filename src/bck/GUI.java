@@ -232,7 +232,6 @@ public class GUI extends javax.swing.JFrame {
         try {
             // TODO add your handling code here:
             ArrayList<String> results = Utils.xmlParser("settings.xml");
-            System.out.println(results);
             //IP MC MDB MDR VERSION
             this.ip_textBox.setText(results.get(0));
             this.pc_textBox.setText(results.get(1));
