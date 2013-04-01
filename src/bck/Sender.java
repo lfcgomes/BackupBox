@@ -61,7 +61,7 @@ public class Sender extends Thread {
                 DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
 
                 try {
-                    Thread.sleep(200);
+                    Thread.sleep(100);
                     socket.send(chunk);
                     Backup.getMissingChunks(sha).put(n, replication_degree);
                 } catch (Exception ex) {

@@ -72,7 +72,7 @@ public class Message extends Thread {
 
                             HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
                             missing = Backup.getMissingChunks(fileID);
-
+                                System.out.println("atribuiu o missing");
                             //não vai acontecer
                             if (missing.get(chunkNO) == null) {
                                 if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
@@ -81,6 +81,8 @@ public class Message extends Thread {
                                     missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
                                 }
                             } else {
+                                
+                                System.out.println("entrou no else piças");
                                 //vai diminuir o replication degree obrigatorio para o chunk
                                 int old_rep = missing.get(chunkNO);
 
