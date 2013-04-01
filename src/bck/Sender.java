@@ -43,7 +43,8 @@ public class Sender extends Thread {
         int retransmit = 0;
         int time_interval_double = 1;
         
-        
+        //Adiciona o ficheiro que está a enviar, aos array de ficheiros enviados
+        Backup.getSendedFiles().add(sha);
         while(retransmit < 5){
             HashMap<String, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
             n = 0;

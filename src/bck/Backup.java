@@ -234,9 +234,7 @@ public class Backup {
                     //TODO lançar thread Sender?
                     Utils.flag_sending = 1;
                     Backup.initiateMissingChunks(sha);
-
-                    //Adiciona o ficheiro que está a enviar, aos array de ficheiros enviados
-                    sended_files.add(sha);
+                    
 
                     Sender sender = new Sender(address, MC, MDB, sha, replication_degree, false);
                     sender.start();
@@ -392,7 +390,7 @@ public class Backup {
 
                                 DatagramPacket removed_packet = new DatagramPacket(msg.getBytes(), msg.length(), address, MC);
 
-                                Thread.sleep(100);
+                                Thread.sleep(200);
                                 socket.send(removed_packet);
                             }
                         }
