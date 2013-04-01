@@ -31,6 +31,7 @@ public class Sender extends Thread {
         socket.joinGroup(address);
         delete = dlt;
         
+        
     }
 
     @Override

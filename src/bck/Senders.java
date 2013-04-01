@@ -30,7 +30,8 @@ public class Senders extends Thread {
         sha = sh;
         socket = new MulticastSocket(MD);
         socket.joinGroup(address);
-        
+        chunk = chunk_aux;
+        chunkNO = chunk_no;
     }
 
     @Override
