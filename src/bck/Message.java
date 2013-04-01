@@ -125,7 +125,7 @@ public class Message extends Thread {
 
                             //System.out.println("vamos ver se tenho o chunk");
                             // Verifica se tenho guardado aquele chunkNO, para o fileID dado.
-                            if (Backup.getStoredChunks(fileID).contains(chunkNO)) {
+                            if (Backup.getStoredChunks(fileID) != null && Backup.getStoredChunks(fileID).contains(chunkNO)) {
 
                                 RandomAccessFile f = null;
                                 try {
