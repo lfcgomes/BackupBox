@@ -210,8 +210,10 @@ public class Message extends Thread {
                                             
                                             //verificar se o degree ficou abaixo do esperado. 
                                             //(+1 porque no ficheiro não está a escrever o dele próprio)
-                                            if(Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) < new_degree+1){
-                
+                                            System.out.println("optimal degree "+Backup.getStoredFileMinimumDegree().get(fileID));
+                                            System.out.println("new degree "+new_degree);
+                                            if(new_degree+1 < Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) ){
+                                                System.out.println("vai tentar reenviar um chunk apagado");
                                                 boolean aux_delete;
                                                 if (Backup.getMapChunkFiles().containsKey(fileID)) {
                                                     aux_delete = false;
