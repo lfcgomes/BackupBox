@@ -239,10 +239,8 @@ public class Message extends Thread {
                                                     Backup.initiateMissingChunks(fileID);
                                                 }
 
-                                                Senders sender = new Senders(address, MC, MDB, 1, fileID, chunk, chunk_no);
+                                                Retransmit sender = new Retransmit(address, MDB, 1, fileID, chunk, chunk_no);
                                                 sender.start();
-
-
                                             }
 
                                         } catch (Exception ex) {

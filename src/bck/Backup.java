@@ -237,7 +237,7 @@ public class Backup {
                     Backup.initiateMissingChunks(sha);
                     
 
-                    Sender sender = new Sender(address, MC, MDB, sha, replication_degree, false);
+                    Sender sender = new Sender(address, MC, MDB, sha, replication_degree);
                     sender.start();
 
                     while (Utils.flag_sending == 1) {

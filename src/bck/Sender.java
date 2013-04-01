@@ -18,9 +18,8 @@ public class Sender extends Thread {
     int MD;
     String sha = "";
     int replication_degree;
-    boolean delete;
     
-    public Sender(InetAddress ad, int m_c, int m_d, String sh, int rd, boolean dlt) throws IOException {
+    public Sender(InetAddress ad, int m_c, int m_d, String sh, int rd) throws IOException {
 
         address = ad;
         MC = m_c;
@@ -28,9 +27,7 @@ public class Sender extends Thread {
         sha = sh;
         replication_degree = rd;
         socket = new MulticastSocket(MD);
-        socket.joinGroup(address);
-        delete = dlt;
-        
+        socket.joinGroup(address);   
         
     }
 
@@ -64,8 +61,6 @@ public class Sender extends Thread {
                 try {
                     Thread.sleep(100);
                     socket.send(chunk);
-                    if(delete)
-                        Backup.getMapChunkFiles().get(sha).remove(n);
                     Backup.getMissingChunks(sha).put(n, replication_degree);
                 } catch (Exception ex) {
                     Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);

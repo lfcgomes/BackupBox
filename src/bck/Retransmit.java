@@ -10,22 +10,19 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /* thread que vai enviar chunks para fazer backup no receiver*/
-public class Senders extends Thread {
+public class Retransmit extends Thread {
 
     MulticastSocket socket = null;
     InetAddress address = null;
-    int MC;
     int MD;
     String sha = "";
     int replication_degree;
-    boolean delete;
     String chunkNO;
     byte[] chunk;
     
-    public Senders(InetAddress ad, int m_c, int m_d, int rep, String sh, byte[] chunk_aux, String chunk_no) throws IOException {
+    public Retransmit(InetAddress ad, int m_d, int rep, String sh, byte[] chunk_aux, String chunk_no) throws IOException {
 
         address = ad;
-        MC = m_c;
         MD = m_d;
         sha = sh;
         socket = new MulticastSocket(MD);
