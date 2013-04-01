@@ -215,6 +215,7 @@ public class Message extends Thread {
                                             if(new_degree+1 < Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) ){
                                                 
                                                 boolean aux_delete;
+                                                byte[] chunk = null;
                                                 if (Backup.getMapChunkFiles().containsKey(fileID)) {
                                                     aux_delete = false;
                                                 } else {
@@ -227,7 +228,7 @@ public class Message extends Thread {
                                                     } catch (FileNotFoundException ex) {
                                                         Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                                     }
-                                                    byte[] chunk = null;
+                                                    
                                                     try {
                                                         chunk = new byte[(int) f.length()];
                                                         f.read(chunk);
@@ -235,15 +236,12 @@ public class Message extends Thread {
                                                         Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                                     }
 
-                                                    HashMap<String, byte[]> hash_aux = new HashMap<String, byte[]>();
-                                                    hash_aux.put(chunk_no, chunk);
-                                                    Backup.getMapChunkFiles().put(fileID, hash_aux);
-                                                    aux_delete = true;
+                                                   
                                                 }
                                                 if(Backup.getMissingChunks(fileID) == null)
                                                     Backup.initiateMissingChunks(fileID);
                                                 
-                                                Sender sender = new Sender(address, MC, MDB, fileID, 1, false);
+                                                Senders sender = new Senders(address, MC, MDB, 1, fileID, chunk, chunk_no);
                                                 sender.start();
                                                 
 
