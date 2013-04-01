@@ -58,11 +58,11 @@ public class Senders extends Thread {
             System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
             System.arraycopy(chunk, 0, final_msg, msg_byte.length, chunk.length);
 
-            DatagramPacket chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
+            DatagramPacket chunk_packet = new DatagramPacket(final_msg, final_msg.length, this.address, this.MD);
 
             try {
                 Thread.sleep(100);
-                socket.send(chunk);
+                socket.send(chunk_packet);
                 Backup.getMissingChunks(sha).put(chunkNO, replication_degree);
             } catch (Exception ex) {
                 Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
