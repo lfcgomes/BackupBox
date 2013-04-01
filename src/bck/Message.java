@@ -210,46 +210,39 @@ public class Message extends Thread {
                                             
                                             //verificar se o degree ficou abaixo do esperado. 
                                             //(+1 porque no ficheiro não está a escrever o dele próprio)
-                                            /*if(Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) < new_degree+1){
+                                            if(Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) < new_degree+1){
                 
-                                                //lançar um putchunk para este chunk
-                                                String msg = "PUTCHUNK " + Backup.getVersion() + " " + fileID + " " + chunk_no
-                                                        + " " + Backup.getStoredFileMinimumDegree().get(fileID) + "\n\n";
-                                                byte[] msg_byte = msg.getBytes();
-                                                
-                                                byte[] final_msg = new byte[msg_byte.length + 64000];
-                                                System.arraycopy(msg_byte, 0, final_msg, 0, msg_byte.length);
-                                                
-                                                //reading the content of the chunk
-                                                RandomAccessFile f = null;
-                                                try {
-                                                    f = new RandomAccessFile(fileID + "_" + chunk_no, "r");
-                                                } catch (FileNotFoundException ex) {
-                                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
-                                                }
-                                                byte[] chunk = null;
-                                                try {
-                                                    chunk = new byte[(int) f.length()];
-                                                    f.read(chunk);
-                                                } catch (Exception ex) {
-                                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
-                                                }
-                                                
-                                                System.arraycopy(chunk, 0, final_msg, msg_byte.length, chunk.length);
+                                                boolean aux_delete;
+                                                if (Backup.getMapChunkFiles().containsKey(fileID)) {
+                                                    aux_delete = false;
+                                                } else {
+                                                       /* Se o ficheiro não for nosso, temos que adicionar ao hashmap
+                                                            de chunks para envio
+                                                     */
+                                                    RandomAccessFile f = null;
+                                                    try {
+                                                        f = new RandomAccessFile(fileID + "_" + chunk_no, "r");
+                                                    } catch (FileNotFoundException ex) {
+                                                        Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                                    }
+                                                    byte[] chunk = null;
+                                                    try {
+                                                        chunk = new byte[(int) f.length()];
+                                                        f.read(chunk);
+                                                    } catch (Exception ex) {
+                                                        Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                                    }
 
-                                                DatagramPacket re_chunk = new DatagramPacket(final_msg, final_msg.length, this.address, this.MDB);
-
-                                                try {
-                                                    System.out.println("Retransmitting chunk...");
-                                                    Thread.sleep(100);
-                                                    socket_retransmit.send(re_chunk);
-               
-                                                } catch (Exception ex) {
-                                                    Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
+                                                    HashMap<String, byte[]> hash_aux = new HashMap<String, byte[]>();
+                                                    hash_aux.put(chunk_no, chunk);
+                                                    Backup.getMapChunkFiles().put(fileID, hash_aux);
+                                                    aux_delete = true;
                                                 }
+                                                Sender sender = new Sender(address, MC, MDB, fileID, 1, false);
+                                                sender.start();
 
-                                                
-                                            }*/
+
+                                            }
                                             
                                         } catch (Exception ex) {
                                             Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);

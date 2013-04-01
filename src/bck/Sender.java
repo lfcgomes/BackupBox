@@ -18,8 +18,9 @@ public class Sender extends Thread {
     int MD;
     String sha = "";
     int replication_degree;
-
-    public Sender(InetAddress ad, int m_c, int m_d, String sh, int rd) throws IOException {
+    boolean delete;
+    
+    public Sender(InetAddress ad, int m_c, int m_d, String sh, int rd, boolean dlt) throws IOException {
 
         address = ad;
         MC = m_c;
@@ -28,6 +29,8 @@ public class Sender extends Thread {
         replication_degree = rd;
         socket = new MulticastSocket(MD);
         socket.joinGroup(address);
+        delete = dlt;
+        
     }
 
     @Override
@@ -40,8 +43,8 @@ public class Sender extends Thread {
         int retransmit = 0;
         int time_interval_double = 1;
         
+        
         while(retransmit < 5){
-            
             HashMap<String, byte[]> file_to_send_chunks = Backup.getMapChunkFiles().get(sha);
             n = 0;
             
@@ -84,6 +87,8 @@ public class Sender extends Thread {
                 Utils.flag_sending = 0;
                 break;
             }
-        } 
+        }
+        if(delete)
+            Backup.getMapChunkFiles().remove(sha);
     }
 }

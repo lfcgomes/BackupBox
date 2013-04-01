@@ -238,7 +238,7 @@ public class Backup {
                     //Adiciona o ficheiro que está a enviar, aos array de ficheiros enviados
                     sended_files.add(sha);
 
-                    Sender sender = new Sender(address, MC, MDB, sha, replication_degree);
+                    Sender sender = new Sender(address, MC, MDB, sha, replication_degree, false);
                     sender.start();
 
                     while (Utils.flag_sending == 1) {
