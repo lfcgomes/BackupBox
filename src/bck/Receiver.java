@@ -103,7 +103,6 @@ public class Receiver extends Thread {
 
                                 String msg = "STORED " + version + " " + fileID + " " + chunkNO + "\n\n";
                                 DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
-                                System.out.println("stored enviado "+msg);
                                 Random randomGenerator = new Random();
                                 int randomDelay = randomGenerator.nextInt(400);
 
