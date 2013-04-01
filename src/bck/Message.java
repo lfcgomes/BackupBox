@@ -62,52 +62,50 @@ public class Message extends Thread {
                     String fileID = data_parsed[2];
                     int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
 
-                    if (!Backup.getMapShaFiles().containsKey(fileID)) {
-                        if (Backup.getVersion().equalsIgnoreCase(version)) {
+                    if (Backup.getVersion().equalsIgnoreCase(version)) {
 
-                            if (Backup.getSendedFiles().contains(fileID)) {
-                                if (!Backup.getReceivedSendedFiles().contains(fileID)) {
-                                    Backup.getReceivedSendedFiles().add(fileID);
-                                }
-
-
-                                HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
-                                missing = Backup.getMissingChunks(fileID);
-                                //não vai acontecer
-                                if (missing.get(chunkNO) == null) {
-                                    if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
-                                        missing.remove(chunkNO);
-                                    } else {
-                                        missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
-                                    }
-                                } else {
-
-                                    //vai diminuir o replication degree obrigatorio para o chunk
-                                    int old_rep = missing.get(chunkNO);
-
-                                    if (old_rep == 1) {
-                                        missing.remove(chunkNO);
-                                    } else {
-                                        missing.put(chunkNO, old_rep - 1);
-                                    }
-                                }
-
-                                Backup.getMissingChunks().put(fileID, missing);
+                        if (Backup.getSendedFiles().contains(fileID)) {
+                            if (!Backup.getReceivedSendedFiles().contains(fileID)) {
+                                Backup.getReceivedSendedFiles().add(fileID);
                             }
 
-                            //CASO O STORE SEJA DE UM FICHEIRO QUE EU JÁ TENHA RECEBIDO
-                            if (Backup.getStoredChunks(fileID) != null) {
-                                //vou escrever num ficheiro                            
-                                try {
-                                    File file = new File(fileID + ".txt");
-                                    if (!file.exists()) {
-                                        file.createNewFile();
-                                    }
-                                    Utils.replace(file.getName(), String.valueOf(chunkNO), "PLUS");
 
-                                } catch (IOException ex) {
-                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                            HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
+                            missing = Backup.getMissingChunks(fileID);
+                            //não vai acontecer
+                            if (missing.get(chunkNO) == null) {
+                                if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
+                                    missing.remove(chunkNO);
+                                } else {
+                                    missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
                                 }
+                            } else {
+
+                                //vai diminuir o replication degree obrigatorio para o chunk
+                                int old_rep = missing.get(chunkNO);
+
+                                if (old_rep == 1) {
+                                    missing.remove(chunkNO);
+                                } else {
+                                    missing.put(chunkNO, old_rep - 1);
+                                }
+                            }
+
+                            Backup.getMissingChunks().put(fileID, missing);
+                        }
+
+                        //CASO O STORE SEJA DE UM FICHEIRO QUE EU JÁ TENHA RECEBIDO
+                        if (Backup.getStoredChunks(fileID) != null) {
+                            //vou escrever num ficheiro                            
+                            try {
+                                File file = new File(fileID + ".txt");
+                                if (!file.exists()) {
+                                    file.createNewFile();
+                                }
+                                Utils.replace(file.getName(), String.valueOf(chunkNO), "PLUS");
+
+                            } catch (IOException ex) {
+                                Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }

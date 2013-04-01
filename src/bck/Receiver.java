@@ -59,62 +59,65 @@ public class Receiver extends Thread {
                 String fileID = data_parsed[2];
                 String chunkNO = data_parsed[3];
                 String replication_degree = data_parsed[4];
-                
-                if(Backup.getStoredFileMinimumDegree().get(fileID) == null){
-                     Backup.getStoredFileMinimumDegree().put(fileID, replication_degree);
-                }
-                
-                byte[] info = new byte[64000];
 
-                System.arraycopy(receive_buffer, inicio_body, info, 0, 64000);
+                if (!Backup.getMapShaFiles().containsKey(fileID)) {
+                    
+                    if (Backup.getStoredFileMinimumDegree().get(fileID) == null) {
+                        Backup.getStoredFileMinimumDegree().put(fileID, replication_degree);
+                    }
 
-                //verifica se é o último chunk para o caso de todos serem de 64K
-                if (!isEmptyChunk(info)) {
+                    byte[] info = new byte[64000];
 
-                    //verifica se tem espaço suficiente em disco para guardar
-                    if (Backup.getDiskSpace() - info.length > 0) {
-                        
-                        //verifica se o chunk que está a tentar receber é da mesma versão do sistema
-                        if (version.equalsIgnoreCase(Backup.getVersion())) {
+                    System.arraycopy(receive_buffer, inicio_body, info, 0, 64000);
 
-                            //verifica se ja existe uma key criada no mapa para aquele ficheiro
-                            if (!Backup.getStoredChunksMap().containsKey(fileID)) {
-                                Backup.initiateStoredChunk(fileID);
-                            }
-                            //verifica se já armazenou esse chunk
-                            if (!Backup.existChunk(fileID, chunkNO)) {
+                    //verifica se é o último chunk para o caso de todos serem de 64K
+                    if (!isEmptyChunk(info)) {
 
-                                FileOutputStream f;
-                                try {
-                                    f = new FileOutputStream(fileID + "_" + chunkNO);
-                                    f.write(info);
-                                    f.flush();
-                                    f.close();
-                                    Backup.updateDiskSpace(info.length);
-  
-                                } catch (Exception ex) {
-                                    Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                        //verifica se tem espaço suficiente em disco para guardar
+                        if (Backup.getDiskSpace() - info.length > 0) {
+
+                            //verifica se o chunk que está a tentar receber é da mesma versão do sistema
+                            if (version.equalsIgnoreCase(Backup.getVersion())) {
+
+                                //verifica se ja existe uma key criada no mapa para aquele ficheiro
+                                if (!Backup.getStoredChunksMap().containsKey(fileID)) {
+                                    Backup.initiateStoredChunk(fileID);
                                 }
-                                
-                                //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
-                                Backup.getStoredChunks(fileID).add(chunkNO);
+                                //verifica se já armazenou esse chunk
+                                if (!Backup.existChunk(fileID, chunkNO)) {
 
-                                //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
+                                    FileOutputStream f;
+                                    try {
+                                        f = new FileOutputStream(fileID + "_" + chunkNO);
+                                        f.write(info);
+                                        f.flush();
+                                        f.close();
+                                        Backup.updateDiskSpace(info.length);
 
-                                String msg = "STORED " + version + " " + fileID + " " + chunkNO + "\n\n";
-                                DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
-                                Random randomGenerator = new Random();
-                                int randomDelay = randomGenerator.nextInt(400);
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
 
-                                try {
-                                    //Thread.sleep(randomDelay);
-                                    socket_control.send(chunk_stored);
-                                } catch (Exception ex) {
-                                    Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                    //adiciona o chunk ao hashmap que contém o número dos chunks armazenados desse ficheiro
+                                    Backup.getStoredChunks(fileID).add(chunkNO);
+
+                                    //STORED <Version> <FileId> <ChunkNo><CRLF><CRLF>
+
+                                    String msg = "STORED " + version + " " + fileID + " " + chunkNO + "\n\n";
+                                    DatagramPacket chunk_stored = new DatagramPacket(msg.getBytes(), msg.length(), this.address, this.MC);
+                                    Random randomGenerator = new Random();
+                                    int randomDelay = randomGenerator.nextInt(400);
+
+                                    try {
+                                        //Thread.sleep(randomDelay);
+                                        socket_control.send(chunk_stored);
+                                    } catch (Exception ex) {
+                                        Logger.getLogger(Receiver.class.getName()).log(Level.SEVERE, null, ex);
+                                    }
                                 }
                             }
+
                         }
-
                     }
                 }
             }
