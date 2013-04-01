@@ -371,7 +371,7 @@ public class Backup {
                     if (yes_no.equalsIgnoreCase("no")) {
                         break;
                     }
-
+                    disk_space = 0;
                     Set<String> stored_filenames = getStoredChunksMap().keySet();
                     
                     File chunks_dir = new File(".");
@@ -380,6 +380,9 @@ public class Backup {
                     for (String fileID : stored_filenames) {
 
                         for (File filename : foundFiles) {
+                            if(filename.getName().equals(fileID+".txt"))
+                                filename.delete();
+                            
                             if (filename.getName().startsWith(fileID + "_")) {
                                 //encontrou o ficheiro, vai apagá-lo e enviar REMOVED do chunk respectivo
                                 filename.delete();
