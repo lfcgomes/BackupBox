@@ -50,7 +50,7 @@ public class Sender extends Thread {
             n = 0;
             
             while (file_to_send_chunks.get(String.valueOf(n)) != null) {
-                
+                System.out.println("enviando chunk no "+n);
                 String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + n
                         + " " + replication_degree + "\n\n";
                 byte[] msg_byte = msg.getBytes();
