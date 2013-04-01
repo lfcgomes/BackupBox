@@ -32,6 +32,7 @@ public class Senders extends Thread {
         socket.joinGroup(address);
         chunk = chunk_aux;
         chunkNO = chunk_no;
+        replication_degree = rep;
     }
 
     @Override
