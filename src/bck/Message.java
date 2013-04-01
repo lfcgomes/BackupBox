@@ -21,7 +21,7 @@ public class Message extends Thread {
     int MDB;
     MulticastSocket socket_restore = null;
     MulticastSocket socket_retransmit = null;
-    
+
     public Message(MulticastSocket s, InetAddress ad, int p, int mdr, int mdb) throws IOException {
         socket = s;
         address = ad;
@@ -62,53 +62,56 @@ public class Message extends Thread {
                     String fileID = data_parsed[2];
                     int chunkNO = Integer.parseInt(data_parsed[3].substring(0, data_parsed[3].indexOf("\n")));
 
-                    if (Backup.getVersion().equalsIgnoreCase(version)) {
+                    if (!Backup.getMapShaFiles().containsKey(fileID)) {
+                        if (Backup.getVersion().equalsIgnoreCase(version)) {
 
-                        if (Backup.getSendedFiles().contains(fileID)) {
-                            if (!Backup.getReceivedSendedFiles().contains(fileID)) {
-                                Backup.getReceivedSendedFiles().add(fileID);
+                            if (Backup.getSendedFiles().contains(fileID)) {
+                                if (!Backup.getReceivedSendedFiles().contains(fileID)) {
+                                    Backup.getReceivedSendedFiles().add(fileID);
+                                }
+
+
+                                HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
+                                missing = Backup.getMissingChunks(fileID);
+                                //não vai acontecer
+                                if (missing.get(chunkNO) == null) {
+                                    if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
+                                        missing.remove(chunkNO);
+                                    } else {
+                                        missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
+                                    }
+                                } else {
+
+                                    //vai diminuir o replication degree obrigatorio para o chunk
+                                    int old_rep = missing.get(chunkNO);
+
+                                    if (old_rep == 1) {
+                                        missing.remove(chunkNO);
+                                    } else {
+                                        missing.put(chunkNO, old_rep - 1);
+                                    }
+                                }
+
+                                Backup.getMissingChunks().put(fileID, missing);
                             }
 
+                            //CASO O STORE SEJA DE UM FICHEIRO QUE EU JÁ TENHA RECEBIDO
+                            if (Backup.getStoredChunks(fileID) != null) {
+                                //vou escrever num ficheiro                            
+                                try {
+                                    File file = new File(fileID + ".txt");
+                                    if (!file.exists()) {
+                                        file.createNewFile();
+                                    }
+                                    Utils.replace(file.getName(), String.valueOf(chunkNO), "PLUS");
 
-                            HashMap<Integer, Integer> missing = new HashMap<Integer, Integer>();
-                            missing = Backup.getMissingChunks(fileID);
-                            //não vai acontecer
-                            if (missing.get(chunkNO) == null) {
-                                if ((Backup.getFileReplicationDegree(fileID) - 1) == 0) {
-                                    missing.remove(chunkNO);
-                                } else {
-                                    missing.put(chunkNO, Backup.getFileReplicationDegree(fileID) - 1);
+                                } catch (IOException ex) {
+                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                 }
-                            } else {
-
-                                //vai diminuir o replication degree obrigatorio para o chunk
-                                int old_rep = missing.get(chunkNO);
-
-                                if (old_rep == 1) {
-                                    missing.remove(chunkNO);
-                                } else {
-                                    missing.put(chunkNO, old_rep - 1);
-                                }
-                            }
-
-                            Backup.getMissingChunks().put(fileID, missing);
-                        }
-
-                        //CASO O STORE SEJA DE UM FICHEIRO QUE EU JÁ TENHA RECEBIDO
-                        if (Backup.getStoredChunks(fileID) != null) {
-                            //vou escrever num ficheiro                            
-                            try {
-                                File file = new File(fileID + ".txt");
-                                if (!file.exists()) {
-                                    file.createNewFile();
-                                }
-                                Utils.replace(file.getName(), String.valueOf(chunkNO), "PLUS");
-
-                            } catch (IOException ex) {
-                                Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                             }
                         }
                     }
+
                 } else {
                     //GETCHUNK <Version> <FileId> <ChunkNo><CRLF><CRLF>
                     if (data_parsed[0].equalsIgnoreCase("GETCHUNK")) {
@@ -205,44 +208,45 @@ public class Message extends Thread {
                                             File file = new File(fileID + ".txt");
                                             int new_degree = 0;
                                             if (file.exists()) {
-                                                new_degree=Utils.replace(file.getName(), String.valueOf(chunk_no), "MINUS");
+                                                new_degree = Utils.replace(file.getName(), String.valueOf(chunk_no), "MINUS");
                                             }
-                                            
+
                                             //verificar se o degree ficou abaixo do esperado. 
                                             //(+1 porque no ficheiro não está a escrever o dele próprio)
-                                            if(new_degree+1 < Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID)) ){
-                                                
-                                                
-                                                byte[] chunk = null;
-                                               
-                                                       /* Se o ficheiro não for nosso, temos que adicionar ao hashmap
-                                                            de chunks para envio
-                                                     */
-                                                    RandomAccessFile f = null;
-                                                    try {
-                                                        f = new RandomAccessFile(fileID + "_" + chunk_no, "r");
-                                                    } catch (FileNotFoundException ex) {
-                                                        Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
-                                                    }
-                                                    
-                                                    try {
-                                                        chunk = new byte[(int) f.length()];
-                                                        f.read(chunk);
-                                                    } catch (Exception ex) {
-                                                        Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
-                                                    }
+                                            if (new_degree + 1 < Integer.parseInt(Backup.getStoredFileMinimumDegree().get(fileID))) {
 
-                                                   
-                                                
-                                                if(Backup.getMissingChunks(fileID) == null)
+
+                                                byte[] chunk = null;
+
+                                                /* Se o ficheiro não for nosso, temos que adicionar ao hashmap
+                                                de chunks para envio
+                                                 */
+                                                RandomAccessFile f = null;
+                                                try {
+                                                    f = new RandomAccessFile(fileID + "_" + chunk_no, "r");
+                                                } catch (FileNotFoundException ex) {
+                                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+
+                                                try {
+                                                    chunk = new byte[(int) f.length()];
+                                                    f.read(chunk);
+                                                } catch (Exception ex) {
+                                                    Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
+                                                }
+
+
+
+                                                if (Backup.getMissingChunks(fileID) == null) {
                                                     Backup.initiateMissingChunks(fileID);
-                                                
+                                                }
+
                                                 Senders sender = new Senders(address, MC, MDB, 1, fileID, chunk, chunk_no);
                                                 sender.start();
-                                                
+
 
                                             }
-                                            
+
                                         } catch (Exception ex) {
                                             Logger.getLogger(Message.class.getName()).log(Level.SEVERE, null, ex);
                                         }

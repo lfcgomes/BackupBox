@@ -50,7 +50,6 @@ public class Senders extends Thread {
         while (retransmit < 5) {
             HashMap<String, byte[]> hash_aux = new HashMap<String, byte[]>();
 
-            System.out.println("enviando chunk no " + chunkNO);
             String msg = "PUTCHUNK " + Backup.getVersion() + " " + this.sha + " " + chunkNO
                     + " " + replication_degree + "\n\n";
             byte[] msg_byte = msg.getBytes();
@@ -63,7 +62,7 @@ public class Senders extends Thread {
             try {
                 Thread.sleep(100);
                 socket.send(chunk_packet);
-                Backup.getMissingChunks(sha).put(chunkNO, replication_degree);
+                Backup.getMissingChunks(sha).put(Integer.parseInt(chunkNO), replication_degree);
             } catch (Exception ex) {
                 Logger.getLogger(Sender.class.getName()).log(Level.SEVERE, null, ex);
             }
